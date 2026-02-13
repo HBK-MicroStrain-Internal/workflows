@@ -2,6 +2,19 @@ name: MSVC 2022 x64 Build
 
 on:
   workflow_call:
+    inputs:
+      debug:
+        description: Enable debug builds
+        type: boolean
+        default: true
+      release:
+        description: Enable release builds
+        type: boolean
+        default: true
+      test:
+        description: Run tests
+        type: boolean
+        default: true
 
 jobs:
   static_cpp_workflow:
@@ -18,18 +31,25 @@ jobs:
           preset_name: msvc-2022-x64-tests
 
       - name: Build Debug
+        if: ${{ inputs.debug }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-static-debug
 
       - name: Build Test Debug
         id: build-test-debug
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.test
+          }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-tests-debug
 
       - name: Test Debug
         id: test-debug
+        if: steps.build-test-debug.outcome == 'success'
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
           preset_name: msvc-2022-x64-tests-debug
@@ -43,36 +63,85 @@ jobs:
           file_name: '*test-results-Debug.xml'
 
       - name: Build Release
-        if: steps.test-debug.outcome == 'success' || (steps.build-test-debug.outcome == 'success' && steps.test-debug.outcome == 'skipped')
+        if: >-
+          ${{
+            inputs.release &&
+            (steps.test-debug.outcome == 'success' ||
+            (steps.build-test-debug.outcome == 'success' &&
+            steps.test-debug.outcome == 'skipped'))
+          }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-static-release
 
       - name: Build Test Release
         id: build-test-release
+        if: >-
+          ${{
+            inputs.release &&
+            inputs.test
+          }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-tests-release
 
       - name: Test Release
         id: test-release
+        if: steps.build-test-release.outcome == 'success'
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
           preset_name: msvc-2022-x64-tests-release
 
       - name: Test Results Release
         # Upload results even for failed tests
-        if: always() && steps.test-release.outcome != 'skipped'
+        if: >-
+          ${{
+            always() &&
+            steps.test-release.outcome != 'skipped'
+          }}
         uses: HBK-MicroStrain-Internal/actions/test-results@main
         with:
           display_name: Static C++ Release
           file_name: '*test-results-Release.xml'
 
-      - name: Package
-        if: steps.test-release.outcome == 'success' || (steps.build-test-release.outcome == 'success' && steps.test-release.outcome == 'skipped')
+      - name: Package Debug
+        if: >-
+          ${{
+            inputs.debug &&
+            !inputs.release &&
+            (steps.test-debug.outcome == 'success' ||
+            (steps.build-test-debug.outcome == 'success' &&
+            steps.test-debug.outcome == 'skipped'))
+          }}
         uses: HBK-MicroStrain-Internal/actions/cmake-package@main
         with:
-          preset_name: msvc-2022-x64-tests
+          preset_name: msvc-2022-x64-static-debug
+
+      - name: Package Release
+        if: >-
+          ${{
+            !inputs.debug &&
+            inputs.release &&
+            (steps.test-release.outcome == 'success' ||
+            (steps.build-test-release.outcome == 'success' &&
+            steps.test-release.outcome == 'skipped'))
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: msvc-2022-x64-static-release
+
+      - name: Package
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.release &&
+            (steps.test-release.outcome == 'success' ||
+            (steps.build-test-release.outcome == 'success' &&
+            steps.test-release.outcome == 'skipped'))
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: msvc-2022-x64-static
 
       - name: Archive Artifacts
         uses: HBK-MicroStrain-Internal/actions/archive-artifacts@main
