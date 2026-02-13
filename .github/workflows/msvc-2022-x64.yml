@@ -12,19 +12,24 @@ jobs:
       - name: Checkout
         uses: HBK-MicroStrain-Internal/actions/checkout@main
 
-      - name: Static C++ Build Debug
+      - name: Configure
+        uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
+        with:
+          preset_name: msvc-2022-x64-tests
+
+      - name: Build Debug
         id: build-debug
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-tests-debug
 
-      - name: Static C++ Test Debug
+      - name: Test Debug
         id: test-debug
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
           preset_name: msvc-2022-x64-tests-debug
 
-      - name: Static C++ Test Results Debug
+      - name: Test Results Debug
         # Upload results even for failed tests
         if: always() && steps.test-debug.outcome != 'skipped'
         uses: HBK-MicroStrain-Internal/actions/test-results@main
@@ -32,20 +37,20 @@ jobs:
           display_name: Static C++ Debug
           file_name: '*test-results-Debug.xml'
 
-      - name: Static C++ Build Release
+      - name: Build Release
         id: build-release
         if: steps.test-debug.outcome == 'success' || (steps.build-debug.outcome == 'success' && steps.test-debug.outcome == 'skipped')
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-tests-release
 
-      - name: Static C++ Test Release
+      - name: Test Release
         id: test-release
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
           preset_name: msvc-2022-x64-tests-release
 
-      - name: Static C++ Test Results Release
+      - name: Test Results Release
         # Upload results even for failed tests
         if: always() && steps.test-release.outcome != 'skipped'
         uses: HBK-MicroStrain-Internal/actions/test-results@main
@@ -53,13 +58,13 @@ jobs:
           display_name: Static C++ Release
           file_name: '*test-results-Release.xml'
 
-      - name: Static C++ Package
+      - name: Package
         if: steps.test-release.outcome == 'success' || (steps.build-release.outcome == 'success' && steps.test-release.outcome == 'skipped')
         uses: HBK-MicroStrain-Internal/actions/cmake-package@main
         with:
           preset_name: msvc-2022-x64-tests
 
-      - name: Static C++ Archive Artifacts
+      - name: Archive Artifacts
         uses: HBK-MicroStrain-Internal/actions/archive-artifacts@main
         with:
           display_name: Static C++
