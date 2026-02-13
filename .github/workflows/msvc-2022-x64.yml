@@ -18,7 +18,12 @@ jobs:
           preset_name: msvc-2022-x64-tests
 
       - name: Build Debug
-        id: build-debug
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: msvc-2022-x64-static-debug
+
+      - name: Build Test Debug
+        id: build-test-debug
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-tests-debug
@@ -38,8 +43,13 @@ jobs:
           file_name: '*test-results-Debug.xml'
 
       - name: Build Release
-        id: build-release
-        if: steps.test-debug.outcome == 'success' || (steps.build-debug.outcome == 'success' && steps.test-debug.outcome == 'skipped')
+        if: steps.test-debug.outcome == 'success' || (steps.build-test-debug.outcome == 'success' && steps.test-debug.outcome == 'skipped')
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: msvc-2022-x64-static-release
+
+      - name: Build Test Release
+        id: build-test-release
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
           preset_name: msvc-2022-x64-tests-release
@@ -59,7 +69,7 @@ jobs:
           file_name: '*test-results-Release.xml'
 
       - name: Package
-        if: steps.test-release.outcome == 'success' || (steps.build-release.outcome == 'success' && steps.test-release.outcome == 'skipped')
+        if: steps.test-release.outcome == 'success' || (steps.build-test-release.outcome == 'success' && steps.test-release.outcome == 'skipped')
         uses: HBK-MicroStrain-Internal/actions/cmake-package@main
         with:
           preset_name: msvc-2022-x64-tests
@@ -67,5 +77,5 @@ jobs:
       - name: Archive Artifacts
         uses: HBK-MicroStrain-Internal/actions/archive-artifacts@main
         with:
-          display_name: Static C++
+          artifact_name: Static C++
           file_name: '*.zip'
