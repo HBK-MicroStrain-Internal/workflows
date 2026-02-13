@@ -1,0 +1,66 @@
+name: MSVC 2022 x64 Build
+
+on:
+  workflow_call:
+
+jobs:
+  static_cpp_workflow:
+    name: Static C++ Workflow
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: HBK-MicroStrain-Internal/actions/checkout
+
+      - name: Static C++ Build Debug
+        id: build-debug
+        uses: HBK-MicroStrain-Internal/actions/cmake-build
+        with:
+          preset_name: msvc-2022-x64-tests-debug
+
+      - name: Static C++ Test Debug
+        id: test-debug
+        uses: HBK-MicroStrain-Internal/actions/cmake-test
+        with:
+          preset_name: msvc-2022-x64-tests-debug
+
+      - name: Static C++ Test Results Debug
+        # Upload results even for failed tests
+        if: always() && steps.test-debug.outcome != 'skipped'
+        uses: HBK-MicroStrain-Internal/actions/test-results
+        with:
+          display_name: Static C++ Debug
+          file_name: '*test-results-Debug.xml'
+
+      - name: Static C++ Build Release
+        id: build-release
+        if: steps.test-debug.outcome == 'success' || (steps.build-debug.outcome == 'success' && steps.test-debug.outcome == 'skipped')
+        uses: HBK-MicroStrain-Internal/actions/cmake-build
+        with:
+          preset_name: msvc-2022-x64-tests-release
+
+      - name: Static C++ Test Release
+        id: test-release
+        uses: HBK-MicroStrain-Internal/actions/cmake-test
+        with:
+          preset_name: msvc-2022-x64-tests-release
+
+      - name: Static C++ Test Results Release
+        # Upload results even for failed tests
+        if: always() && steps.test-release.outcome != 'skipped'
+        uses: HBK-MicroStrain-Internal/actions/test-results
+        with:
+          display_name: Static C++ Release
+          file_name: '*test-results-Release.xml'
+
+      - name: Static C++ Package
+        if: steps.test-release.outcome == 'success' || (steps.build-release.outcome == 'success' && steps.test-release.outcome == 'skipped')
+        uses: HBK-MicroStrain-Internal/actions/cmake-package
+        with:
+          preset_name: msvc-2022-x64-tests
+
+      - name: Static C++ Archive Artifacts
+        uses: HBK-MicroStrain-Internal/actions/archive-artifacts
+        with:
+          display_name: Static C++
+          file_name: '*.zip'
