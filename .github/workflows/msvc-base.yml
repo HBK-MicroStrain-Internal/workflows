@@ -84,20 +84,20 @@ jobs:
       unit_test: ${{ inputs.unit_test }}
       integration_test: ${{ inputs.integration_test }}
       debug: ${{ inputs.debug }}
-      debug_configure_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.configure_preset }}
-      debug_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.build_preset }}-debug
-      debug_unit_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
-      debug_unit_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
-      debug_integration_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
-      debug_integration_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
+      debug_configure_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.configure_preset }}
+      debug_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.build_preset }}-debug
+      debug_unit_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
+      debug_unit_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
+      debug_integration_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
+      debug_integration_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
       release: ${{ inputs.release }}
-      release_configure_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.configure_preset }}
-      release_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.build_preset }}-release
-      release_unit_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
-      release_unit_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
-      release_integration_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
-      release_integration_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
-      debug_package_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.package_preset }}-debug
-      release_package_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.package_preset }}-release
-      combined_package_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.package_preset }}
+      release_configure_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.configure_preset }}
+      release_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.build_preset }}-release
+      release_unit_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
+      release_unit_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
+      release_integration_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
+      release_integration_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
+      debug_package_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.package_preset }}-debug
+      release_package_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.package_preset }}-release
+      combined_package_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.package_preset }}
       artifact_match_pattern: ${{ inputs.artifact_match_pattern }}
