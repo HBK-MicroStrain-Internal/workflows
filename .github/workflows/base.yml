@@ -124,6 +124,7 @@ jobs:
 
     steps:
       - name: Validate Inputs
+        shell: bash
         run: |
           # Debug options
           if [ "${{ inputs.debug }}" == "true" ]; then
