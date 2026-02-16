@@ -7,8 +7,11 @@
 # The README is allowed
 !/README.md
 
-# All workflows live in the workflows directory
-!/workflows/
+# Only workflows in the workflows directory are allowed
+!/.github/
+/.github/*
+!/.github/workflows/
+!/.github/workflows/*
 
-# All workflows must be in the root workflows directory
-/workflows/*/
+# No subdirectories in the workflows directory
+/.github/workflows/*/
