@@ -77,10 +77,10 @@ on:
 jobs:
   workflow:
     name: MSVC Workflow
-    uses: .github/workflows/base.yml@main
+    uses: ./.github/workflows/base.yml@main
     with:
       job_name: ${{ inputs.job_name }}
-      runs-on: windows-latest
+      runner_name: windows-latest
       unit_test: ${{ inputs.unit_test }}
       integration_test: ${{ inputs.integration_test }}
       debug: ${{ inputs.debug }}
