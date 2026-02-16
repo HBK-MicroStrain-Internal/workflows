@@ -77,7 +77,7 @@ on:
 jobs:
   workflow:
     name: MSVC Workflow
-    uses: ./.github/workflows/base.yml@main
+    uses: ./.github/workflows/base.yml
     with:
       job_name: ${{ inputs.job_name }}
       runner_name: windows-latest

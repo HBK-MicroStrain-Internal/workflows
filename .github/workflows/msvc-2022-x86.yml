@@ -65,7 +65,7 @@ on:
 jobs:
   workflow:
     name: MSVC 2022 x64 Workflow
-    uses: ./.github/workflows/msvc-base.yml@main
+    uses: ./.github/workflows/msvc-base.yml
     with:
       job_name: ${{ inputs.job_name }}
       year: '2022'
