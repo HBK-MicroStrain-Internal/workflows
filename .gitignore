@@ -1,0 +1,14 @@
+# Nothing is allowed in this project aside from the exceptions below
+/*
+
+# The .gitignore is allowed
+!/.gitignore
+
+# The README is allowed
+!/README.md
+
+# All workflows live in the workflows directory
+!/workflows/
+
+# All workflows must be in the root workflows directory
+/workflows/*/
