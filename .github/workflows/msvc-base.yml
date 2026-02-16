@@ -1,0 +1,103 @@
+name: MSVC Workflow
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        description: Name of the job to display in the GitHub UI. I.E. 'Static C++'
+        type: string
+        required: true
+        default: ''
+
+      year:
+        description: The MSVC tool year
+        type: string
+        required: true
+        default: '2022'
+
+      arch:
+        description: The architecture. x64 or x86
+        type: string
+        required: true
+        default: 'x64'
+
+      debug:
+        description: Enable debug builds
+        type: boolean
+        default: false
+
+      release:
+        description: Enable release builds
+        type: boolean
+        default: false
+
+      configure_preset:
+        description: The preset sub-type used for configuration. I.E. 'tests' for the testing preset
+        type: string
+        required: true
+        default: ''
+
+      build_preset:
+        description: The preset sub-type used for the build. I.E. 'static' for the static library preset
+        type: string
+        required: true
+        default: ''
+
+      unit_test:
+        description: Enable unit testing
+        type: boolean
+        default: false
+
+      unit_test_preset:
+        description: The preset sub-type used for the unit test. I.E. 'unit-tests' for the unit tests preset
+        type: string
+        default: 'unit-tests'
+
+      integration_test:
+        description: Enable integration testing
+        type: boolean
+        default: false
+
+      integration_test_preset:
+        description: The preset sub-type used for the integration test. I.E. 'integration-tests' for the integration tests preset
+        type: string
+        default: 'integration-tests'
+
+      package_preset:
+        description: The preset sub-type used for the packaging. I.E. 'static' for the static package preset
+        type: string
+        required: true
+        default: ''
+
+      artifact_match_pattern:
+        description: Pattern to match for artifacts to upload
+        type: string
+        default: '*.zip'
+
+jobs:
+  workflow:
+    name: MSVC Workflow
+    uses: .github/workflows/base.yml@main
+    with:
+      job_name: ${{ inputs.job_name }}
+      runs-on: windows-latest
+      unit_test: ${{ inputs.unit_test }}
+      integration_test: ${{ inputs.integration_test }}
+      debug: ${{ inputs.debug }}
+      debug_configure_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.configure_preset }}
+      debug_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.build_preset }}-debug
+      debug_unit_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
+      debug_unit_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
+      debug_integration_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
+      debug_integration_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
+      release: ${{ inputs.release }}
+      release_configure_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.configure_preset }}
+      release_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.build_preset }}-release
+      release_unit_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
+      release_unit_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
+      release_integration_test_build_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
+      release_integration_test_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
+      debug_package_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.package_preset }}-debug
+      release_package_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.package_preset }}-release
+      combined_package_preset_name: msvc-${{ inputs.year }}-x${{ inputs.arch }}-${{ inputs.package_preset }}
+      artifact_match_pattern: ${{ inputs.artifact_match_pattern }}

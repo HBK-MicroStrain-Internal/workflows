@@ -1,0 +1,429 @@
+name: CMake Preset Workflow Base
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        description: Name of the job to display in the GitHub UI
+        type: string
+        required: true
+        default: ''
+
+      runner_name:
+        description: Name of the runner to run this workflow on
+        type: string
+        required: true
+        default: ''
+
+      unit_test:
+        description: Enable unit testing
+        type: boolean
+        default: false
+
+      integration_test:
+        description: Enable integration testing
+        type: boolean
+        default: false
+
+      debug:
+        description: Enable debug builds
+        type: boolean
+        default: false
+
+      debug_configure_preset_name:
+        description: Name of the CMake configure preset to use for debug builds
+        type: string
+        required: true
+        default: ''
+
+      debug_build_preset_name:
+        description: Name of the CMake build preset to use for the debug library/application
+        type: string
+        default: ''
+
+      debug_unit_test_build_preset_name:
+        description: Name of the CMake build preset to use for the debug unit tests
+        type: string
+        default: ''
+
+      debug_unit_test_preset_name:
+        description: Name of the CTest preset to use to run debug unit tests
+        type: string
+        default: ''
+
+      debug_integration_test_build_preset_name:
+        description: Name of the CMake build preset to use for the debug integration tests
+        type: string
+        default: ''
+
+      debug_integration_test_preset_name:
+        description: Name of the CTest preset to use to run debug integration tests
+        type: string
+        default: ''
+
+      release:
+        description: Enable release builds
+        type: boolean
+        default: false
+
+      release_configure_preset_name:
+        description: Name of the CMake configure preset to use for release builds
+        type: string
+        required: true
+        default: ''
+
+      release_build_preset_name:
+        description: Name of the CMake build preset to use for the release library/application
+        type: string
+        default: ''
+
+      release_unit_test_build_preset_name:
+        description: Name of the CMake build preset to use for the release unit tests
+        type: string
+        default: ''
+
+      release_unit_test_preset_name:
+        description: Name of the CTest preset to use to run release unit tests
+        type: string
+        default: ''
+
+      release_integration_test_build_preset_name:
+        description: Name of the CMake build preset to use for the release integration tests
+        type: string
+        default: ''
+
+      release_integration_test_preset_name:
+        description: Name of the CTest preset to use to run release integration tests
+        type: string
+        default: ''
+
+      debug_package_preset_name:
+        description: Name of the CMake package preset to use for the debug package
+        type: string
+        default: ''
+
+      release_package_preset_name:
+        description: Name of the CMake package preset to use for the release package
+        type: string
+        default: ''
+
+      combined_package_preset_name:
+        description: Name of the CMake package preset to use for the combined debug & release package
+        type: string
+        default: ''
+
+      artifact_match_pattern:
+        description: Pattern to match for artifacts to upload
+        type: string
+        default: '*.zip'
+
+jobs:
+  workflow:
+    name: ${{ inputs.job_name }}
+    runs-on: ${{ inputs.runner_name }}
+
+    steps:
+      - name: Validate Inputs
+        run: |
+          # Debug options
+          if [ ${{ inputs.debug }} ]; then
+            if [ -z "${{ inputs.debug_configure_preset_name }}" ]; then
+              echo "A debug configure preset is required using 'debug_configure_preset_name'"
+              exit 1
+            fi
+          
+            if [ -z "${{ inputs.debug_build_preset_name }}" ]; then
+              echo "A debug build preset is required using 'debug_build_preset_name'"
+              exit 1
+            fi
+          
+            if [ ${{ inputs.unit_test }} ]; then
+              if [ -z "${{ inputs.debug_unit_test_build_preset_name }}" ]; then
+                echo "A unit test debug build preset is required using 'debug_unit_test_build_preset_name'"
+                exit 1
+              fi
+          
+              if [ -z "${{ inputs.debug_unit_test_preset_name }}" ]; then
+                echo "A unit test debug preset is required using 'debug_unit_test_preset_name'"
+                exit 1
+              fi
+            fi
+          
+            if [ ${{ inputs.integration_test }} ]; then
+              if [ -z "${{ inputs.debug_integration_test_build_preset_name }}" ]; then
+                echo "An integration test debug build preset is required using 'debug_integration_test_build_preset_name'"
+                exit 1
+              fi
+          
+              if [ -z "${{ inputs.debug_integration_test_preset_name }}" ]; then
+                echo "An integration test debug preset is required using 'debug_integration_test_preset_name'"
+                exit 1
+              fi
+            fi
+          
+            if [ -z "${{ inputs.debug_package_preset_name }}" ]; then
+              echo "A debug package preset is required using 'debug_package_preset_name'"
+              exit 1
+            fi
+          fi
+          
+          # Release options
+          if [ ${{ inputs.release }} ]; then
+            if [ -z "${{ inputs.release_configure_preset_name }}" ]; then
+              echo "A release configure preset is required using 'release_configure_preset_name'"
+              exit 1
+            fi
+          
+            if [ -z "${{ inputs.release_build_preset_name }}" ]; then
+              echo "A release build preset is required using 'release_build_preset_name'"
+              exit 1
+            fi
+          
+            if [ ${{ inputs.unit_test }} ]; then
+              if [ -z "${{ inputs.release_unit_test_build_preset_name }}" ]; then
+                echo "A unit test release build preset is required using 'release_unit_test_build_preset_name'"
+                exit 1
+              fi
+          
+              if [ -z "${{ inputs.release_unit_test_preset_name }}" ]; then
+                echo "A unit test release preset is required using 'release_unit_test_preset_name'"
+                exit 1
+              fi
+            fi
+          
+            if [ ${{ inputs.integration_test }} ]; then
+              if [ -z "${{ inputs.release_integration_test_build_preset_name }}" ]; then
+                echo "An integration test release build preset is required using 'release_integration_test_build_preset_name'"
+                exit 1
+              fi
+          
+              if [ -z "${{ inputs.release_integration_test_preset_name }}" ]; then
+                echo "An integration test release preset is required using 'release_integration_test_preset_name'"
+                exit 1
+              fi
+            fi
+          
+            if [ -z "${{ inputs.release_package_preset_name }}" ]; then
+              echo "A release package preset is required using 'release_package_preset_name'"
+              exit 1
+            fi
+          fi
+          
+          # Both Debug and Release options
+          if [ ${{ inputs.debug }} && ${{ inputs.release }} ]; then
+            if [ -z "${{ inputs.combined_package_preset_name }}" ]; then
+              echo "A debug and release package preset is required using 'combined_package_preset_name'"
+              exit 1
+            fi
+          fi
+
+      - name: Checkout
+        uses: HBK-MicroStrain-Internal/actions/checkout@main
+
+      - name: Configure (Debug)
+        if: >-
+          ${{ 
+            inputs.debug
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
+        with:
+          preset_name: ${{ inputs.debug_configure_preset_name }}
+
+      - name: Build (Debug)
+        if: >-
+          ${{ 
+            inputs.debug
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: ${{ inputs.debug_build_preset_name }}
+
+      - name: Build Unit Test(s) (Debug)
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.unit_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: ${{ inputs.debug_unit_test_build_preset_name }}
+
+      - name: Run Unit Test(s) (Debug)
+        id: unit-test-debug
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.unit_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-test@main
+        with:
+          preset_name: ${{ inputs.debug_unit_test_preset_name }}
+
+      - name: Unit Test Results (Debug)
+        # Upload results even for failed tests
+        if: >-
+          ${{
+            always() &&
+            (steps.unit-test-debug.outcome == 'success' ||
+            steps.unit-test-debug.outcome == 'failure')
+          }}
+        uses: HBK-MicroStrain-Internal/actions/test-results@main
+        with:
+          display_name: ${{ inputs.job_name }} Unit Test(s) (Debug)
+          file_name: '*unit-test-results-Debug.xml'
+
+      - name: Build Integration Test(s) (Debug)
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.integration_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: ${{ inputs.debug_integration_test_build_preset_name }}
+
+      - name: Run Integration Test(s) (Debug)
+        id: integration-test-debug
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.integration_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-test@main
+        with:
+          preset_name: ${{ inputs.debug_integration_test_preset_name }}
+
+      - name: Integration Test Results (Debug)
+        # Upload results even for failed tests
+        if: >-
+          ${{
+            always() &&
+            (steps.integration-test-debug.outcome == 'success' ||
+            steps.integration-test-debug.outcome == 'failure')
+          }}
+        uses: HBK-MicroStrain-Internal/actions/test-results@main
+        with:
+          display_name: ${{ inputs.job_name }} Integration Test(s) (Debug)
+          file_name: '*integration-test-results-Debug.xml'
+
+      - name: Configure (Release)
+        if: >-
+          ${{ 
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
+        with:
+          preset_name: ${{ inputs.release_configure_preset_name }}
+
+      - name: Build (Release)
+        if: >-
+          ${{ 
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: ${{ inputs.release_build_preset_name }}
+
+      - name: Build Unit Test(s) (Release)
+        if: >-
+          ${{
+            inputs.release &&
+            inputs.unit_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: ${{ inputs.release_unit_test_build_preset_name }}
+
+      - name: Run Unit Test(s) (Release)
+        id: unit-test-release
+        if: >-
+          ${{
+            inputs.release &&
+            inputs.unit_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-test@main
+        with:
+          preset_name: ${{ inputs.release_unit_test_preset_name }}
+
+      - name: Unit Test Results (Release)
+        # Upload results even for failed tests
+        if: >-
+          ${{
+            always() &&
+            (steps.unit-test-release.outcome == 'success' ||
+            steps.unit-test-release.outcome == 'failure')
+          }}
+        uses: HBK-MicroStrain-Internal/actions/test-results@main
+        with:
+          display_name: ${{ inputs.job_name }} Unit Test(s) (Release)
+          file_name: '*unit-test-results-Release.xml'
+
+      - name: Build Integration Test(s) (Release)
+        if: >-
+          ${{
+            inputs.release &&
+            inputs.integration_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: ${{ inputs.release_integration_test_build_preset_name }}
+
+      - name: Run Integration Test(s) (Release)
+        id: integration-test-release
+        if: >-
+          ${{
+            inputs.release &&
+            inputs.integration_test
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-test@main
+        with:
+          preset_name: ${{ inputs.release_integration_test_preset_name }}
+
+      - name: Integration Test Results (Release)
+        # Upload results even for failed tests
+        if: >-
+          ${{
+            always() &&
+            (steps.integration-test-release.outcome == 'success' ||
+            steps.integration-test-release.outcome == 'failure')
+          }}
+        uses: HBK-MicroStrain-Internal/actions/test-results@main
+        with:
+          display_name: ${{ inputs.job_name }} Integration Test(s) (Release)
+          file_name: '*integration-test-results-Release.xml'
+
+      - name: Package (Debug)
+        if: >-
+          ${{
+            inputs.debug &&
+            !inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: ${{ inputs.debug_package_preset_name }}
+
+      - name: Package (Release)
+        if: >-
+          ${{
+            !inputs.debug &&
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: ${{ inputs.release_package_preset_name }}
+
+      - name: Package (Debug & Release)
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: ${{ inputs.combined_package_preset_name }}
+
+      - name: Archive Artifacts
+        uses: HBK-MicroStrain-Internal/actions/archive-artifacts@main
+        with:
+          artifact_name: ${{ inputs.job_name }}
+          file_name: ${{ inputs.artifact_match_pattern }}
