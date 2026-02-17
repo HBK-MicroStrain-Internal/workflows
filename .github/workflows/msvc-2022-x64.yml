@@ -42,7 +42,7 @@ on:
       unit_test_preset:
         description: The preset sub-type used for the unit test. I.E. 'unit-tests' for the unit tests preset
         type: string
-        default: 'unit-tests'
+        default: ''
 
       integration_test:
         description: Enable integration testing
@@ -52,7 +52,7 @@ on:
       integration_test_preset:
         description: The preset sub-type used for the integration test. I.E. 'integration-tests' for the integration tests preset
         type: string
-        default: 'integration-tests'
+        default: ''
 
       package_preset:
         description: The preset sub-type used for the packaging. I.E. 'static' for the static package preset
@@ -91,8 +91,8 @@ jobs:
 
       integration_test: ${{ inputs.integration_test }}
 
-      integration_test_preset: "${{ inputs.unit_test_preset }}"
+      integration_test_preset: "${{ inputs.integration_test_preset }}"
 
-      package_preset: "${{ inputs.unit_test_preset }}"
+      package_preset: "${{ inputs.package_preset }}"
 
       artifact_match_pattern: "${{ inputs.artifact_match_pattern }}"
