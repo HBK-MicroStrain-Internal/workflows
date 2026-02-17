@@ -128,11 +128,12 @@ on:
 
 jobs:
   workflow:
-    name: ${{ inputs.job_name }}
+    name: "${{ inputs.job_name }}"
     runs-on: ${{ inputs.runner_name }}
 
     steps:
-      - name: Handle Inputs
+      - name: "Handle Inputs"
+        id: handle_inputs
         shell: bash
         run: |
           # Combine preset names for use in the workflow
@@ -175,7 +176,7 @@ jobs:
           
           echo "combined_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.combined_package_preset_name }}" >> $GITHUB_OUTPUT
 
-      - name: Validate Inputs
+      - name: "Validate Inputs"
         shell: bash
         run: |
           # Generic options
@@ -189,41 +190,48 @@ jobs:
           # Debug options
           
           if [ "${{ inputs.debug }}" == "true" ]; then
-            if [ -z "${{ inputs.debug_configure_preset_name }}" ] || [ "${{ inputs.debug_configure_preset_name }}" == "${{ validation_prefix }}" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}" ] ||
+              [ "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug configure preset is required using 'debug_configure_preset_name'"
               exit 1
             fi
           
-            if [ -z "${{ inputs.debug_build_preset_name }}" ] || [ "${{ inputs.debug_build_preset_name }}" == "${{ validation_prefix }}" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" ] ||
+              [ "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug build preset is required using 'debug_build_preset_name'"
               exit 1
             fi
           
             if [ "${{ inputs.unit_test }}" == "true" ]; then
-              if [ -z "${{ inputs.debug_unit_test_build_preset_name }}" ] || [ "${{ inputs.debug_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.debug_unit_test_build_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.debug_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test debug build preset is required using 'debug_unit_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.debug_unit_test_preset_name }}" ] || [ "${{ inputs.debug_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.debug_unit_test_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.debug_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test debug preset is required using 'debug_unit_test_preset_name'"
                 exit 1
               fi
             fi
           
             if [ "${{ inputs.integration_test }}" == "true" ]; then
-              if [ -z "${{ inputs.debug_integration_test_build_preset_name }}" ] || [ "${{ inputs.debug_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.debug_integration_test_build_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.debug_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test debug build preset is required using 'debug_integration_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.debug_integration_test_preset_name }}" ] || [ "${{ inputs.debug_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.debug_integration_test_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.debug_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test debug preset is required using 'debug_integration_test_preset_name'"
                 exit 1
               fi
             fi
           
-            if [ -z "${{ inputs.debug_package_preset_name }}" ] || [ "${{ inputs.debug_package_preset_name }}" == "${{ validation_prefix }}" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.debug_package_preset_name }}" ] ||
+              [ "${{ steps.handle_inputs.outputs.debug_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug package preset is required using 'debug_package_preset_name'"
               exit 1
             fi
@@ -233,41 +241,48 @@ jobs:
           # Release options
           
           if [ "${{ inputs.release }}" == "true" ]; then
-            if [ -z "${{ inputs.release_configure_preset_name }}" ] || [ "${{ inputs.release_configure_preset_name }}" == "${{ validation_prefix }}" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.release_configure_preset_name }}" ] ||
+              [ "${{ steps.handle_inputs.outputs.release_configure_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A release configure preset is required using 'release_configure_preset_name'"
               exit 1
             fi
           
-            if [ -z "${{ inputs.release_build_preset_name }}" ] || [ "${{ inputs.release_build_preset_name }}" == "${{ validation_prefix }}" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.release_build_preset_name }}" ] ||
+              [ "${{ steps.handle_inputs.outputs.release_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A release build preset is required using 'release_build_preset_name'"
               exit 1
             fi
           
             if [ "${{ inputs.unit_test }}" == "true" ]; then
-              if [ -z "${{ inputs.release_unit_test_build_preset_name }}" ] || [ "${{ inputs.release_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.release_unit_test_build_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.release_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test release build preset is required using 'release_unit_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.release_unit_test_preset_name }}" ] || [ "${{ inputs.release_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.release_unit_test_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.release_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test release preset is required using 'release_unit_test_preset_name'"
                 exit 1
               fi
             fi
           
             if [ "${{ inputs.integration_test }}" == "true" ]; then
-              if [ -z "${{ inputs.release_integration_test_build_preset_name }}" ] || [ "${{ inputs.release_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.release_integration_test_build_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.release_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test release build preset is required using 'release_integration_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.release_integration_test_preset_name }}" ] || [ "${{ inputs.release_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
+              if [ -z "${{ steps.handle_inputs.outputs.release_integration_test_preset_name }}" ] ||
+                [ "${{ steps.handle_inputs.outputs.release_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test release preset is required using 'release_integration_test_preset_name'"
                 exit 1
               fi
             fi
           
-            if [ -z "${{ inputs.release_package_preset_name }}" ] || [ "${{ inputs.release_package_preset_name }}" == "${{ validation_prefix }}" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.release_package_preset_name }}" ] ||
+              [ "${{ steps.handle_inputs.outputs.release_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A release package preset is required using 'release_package_preset_name'"
               exit 1
             fi
@@ -277,34 +292,35 @@ jobs:
           # Both Debug and Release options
           
           if [ "${{ inputs.debug }}" == "true" ] && [ "${{ inputs.release }}" == "true" ]; then
-            if [ -z "${{ inputs.combined_package_preset_name }}" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.combined_package_preset_name }}" ] ||
+              [ "${{ steps.handle_inputs.outputs.combined_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug and release package preset is required using 'combined_package_preset_name'"
               exit 1
             fi
           fi
 
-      - name: Checkout
+      - name: "Checkout"
         uses: HBK-MicroStrain-Internal/actions/checkout@main
 
-      - name: Configure (Debug)
+      - name: "Configure (Debug)"
         if: >-
           ${{ 
             inputs.debug
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
         with:
-          preset_name: ${{ inputs.debug_configure_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}"
 
-      - name: Build (Debug)
+      - name: "Build (Debug)"
         if: >-
           ${{ 
             inputs.debug
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
-          preset_name: ${{ inputs.debug_build_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.debug_build_preset_name }}"
 
-      - name: Build Unit Test(s) (Debug)
+      - name: "Build Unit Test(s) (Debug)"
         if: >-
           ${{
             inputs.debug &&
@@ -312,9 +328,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
-          preset_name: ${{ inputs.debug_unit_test_build_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.debug_unit_test_build_preset_name }}"
 
-      - name: Run Unit Test(s) (Debug)
+      - name: "Run Unit Test(s) (Debug)"
         id: unit-test-debug
         if: >-
           ${{
@@ -323,9 +339,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
-          preset_name: ${{ inputs.debug_unit_test_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.debug_unit_test_preset_name }}"
 
-      - name: Unit Test Results (Debug)
+      - name: "Unit Test Results (Debug)"
         # Upload results even for failed tests
         if: >-
           ${{
@@ -335,10 +351,10 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/test-results@main
         with:
-          display_name: ${{ inputs.job_name }} Unit Test(s) (Debug)
+          display_name: "${{ inputs.job_name }} Unit Test(s) (Debug)"
           file_name: '*unit-test-results-Debug.xml'
 
-      - name: Build Integration Test(s) (Debug)
+      - name: "Build Integration Test(s) (Debug)"
         if: >-
           ${{
             inputs.debug &&
@@ -346,9 +362,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
-          preset_name: ${{ inputs.debug_integration_test_build_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.debug_integration_test_build_preset_name }}"
 
-      - name: Run Integration Test(s) (Debug)
+      - name: "Run Integration Test(s) (Debug)"
         id: integration-test-debug
         if: >-
           ${{
@@ -357,9 +373,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
-          preset_name: ${{ inputs.debug_integration_test_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.debug_integration_test_preset_name }}"
 
-      - name: Integration Test Results (Debug)
+      - name: "Integration Test Results (Debug)"
         # Upload results even for failed tests
         if: >-
           ${{
@@ -369,28 +385,28 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/test-results@main
         with:
-          display_name: ${{ inputs.job_name }} Integration Test(s) (Debug)
+          display_name: "${{ inputs.job_name }} Integration Test(s) (Debug)"
           file_name: '*integration-test-results-Debug.xml'
 
-      - name: Configure (Release)
+      - name: "Configure (Release)"
         if: >-
           ${{ 
             inputs.release
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
         with:
-          preset_name: ${{ inputs.release_configure_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.release_configure_preset_name }}"
 
-      - name: Build (Release)
+      - name: "Build (Release)"
         if: >-
           ${{ 
             inputs.release
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
-          preset_name: ${{ inputs.release_build_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.release_build_preset_name }}"
 
-      - name: Build Unit Test(s) (Release)
+      - name: "Build Unit Test(s) (Release)"
         if: >-
           ${{
             inputs.release &&
@@ -398,9 +414,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
-          preset_name: ${{ inputs.release_unit_test_build_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.release_unit_test_build_preset_name }}"
 
-      - name: Run Unit Test(s) (Release)
+      - name: "Run Unit Test(s) (Release)"
         id: unit-test-release
         if: >-
           ${{
@@ -409,9 +425,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
-          preset_name: ${{ inputs.release_unit_test_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.release_unit_test_preset_name }}"
 
-      - name: Unit Test Results (Release)
+      - name: "Unit Test Results (Release)"
         # Upload results even for failed tests
         if: >-
           ${{
@@ -421,10 +437,10 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/test-results@main
         with:
-          display_name: ${{ inputs.job_name }} Unit Test(s) (Release)
+          display_name: "${{ inputs.job_name }} Unit Test(s) (Release)"
           file_name: '*unit-test-results-Release.xml'
 
-      - name: Build Integration Test(s) (Release)
+      - name: "Build Integration Test(s) (Release)"
         if: >-
           ${{
             inputs.release &&
@@ -432,9 +448,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-build@main
         with:
-          preset_name: ${{ inputs.release_integration_test_build_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.release_integration_test_build_preset_name }}"
 
-      - name: Run Integration Test(s) (Release)
+      - name: "Run Integration Test(s) (Release)"
         id: integration-test-release
         if: >-
           ${{
@@ -443,9 +459,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-test@main
         with:
-          preset_name: ${{ inputs.release_integration_test_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.release_integration_test_preset_name }}"
 
-      - name: Integration Test Results (Release)
+      - name: "Integration Test Results (Release)"
         # Upload results even for failed tests
         if: >-
           ${{
@@ -455,10 +471,10 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/test-results@main
         with:
-          display_name: ${{ inputs.job_name }} Integration Test(s) (Release)
+          display_name: "${{ inputs.job_name }} Integration Test(s) (Release)"
           file_name: '*integration-test-results-Release.xml'
 
-      - name: Package (Debug)
+      - name: "Package (Debug)"
         if: >-
           ${{
             inputs.debug &&
@@ -466,9 +482,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-package@main
         with:
-          preset_name: ${{ inputs.debug_package_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.debug_package_preset_name }}"
 
-      - name: Package (Release)
+      - name: "Package (Release)"
         if: >-
           ${{
             !inputs.debug &&
@@ -476,9 +492,9 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-package@main
         with:
-          preset_name: ${{ inputs.release_package_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.release_package_preset_name }}"
 
-      - name: Package (Debug & Release)
+      - name: "Package (Debug & Release)"
         if: >-
           ${{
             inputs.debug &&
@@ -486,10 +502,10 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-package@main
         with:
-          preset_name: ${{ inputs.combined_package_preset_name }}
+          preset_name: "${{ steps.handle_inputs.outputs.combined_package_preset_name }}"
 
-      - name: Archive Artifacts
+      - name: "Archive Artifacts"
         uses: HBK-MicroStrain-Internal/actions/archive-artifacts@main
         with:
-          artifact_name: ${{ inputs.job_name }}
-          file_name: ${{ inputs.artifact_match_pattern }}
+          artifact_name: "${{ inputs.job_name }}"
+          file_name: "${{ inputs.artifact_match_pattern }}"
