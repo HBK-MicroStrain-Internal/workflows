@@ -1,0 +1,84 @@
+name: MSVC 2022 x86 Workflow For Language Bindings
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        description: Name of the job to display in the GitHub UI. I.E. 'Static C++'
+        type: string
+        required: true
+        default: ''
+
+      preset:
+        description: The preset sub-type used for all presets. I.E. 'static' for the static preset
+        type: string
+        default: ''
+
+      debug:
+        description: Enable debug builds
+        type: boolean
+        default: false
+
+      release:
+        description: Enable release builds
+        type: boolean
+        default: false
+
+      configure_preset:
+        description: The preset sub-type used for configuration. I.E. 'tests' for the testing preset
+        type: string
+        default: ''
+
+      build_preset:
+        description: The preset sub-type used for the build. I.E. 'static' for the static library preset
+        type: string
+        default: ''
+
+      binding_build_preset:
+        description: The preset sub-type used for the binding build. I.E. 'python' for the python binding preset
+        type: string
+        default: ''
+
+      package_preset:
+        description: The preset sub-type used for the packaging. I.E. 'static' for the static package preset
+        type: string
+        default: ''
+
+      package_path:
+        description: Path to the directory containing the package files
+        type: string
+        default: ''
+
+      artifact_match_pattern:
+        description: Pattern to match for artifacts to upload
+        type: string
+        default: '*.zip'
+
+jobs:
+  workflow:
+    name: "MSVC 2022 x86 Workflow For Bindings"
+    uses: ./.github/workflows/msvc-base-bindings.yml
+    with:
+      job_name: "${{ inputs.job_name }}"
+
+      year: "2022"
+
+      arch: "x86"
+
+      preset: ${{ inputs.preset }}
+
+      debug: ${{ inputs.debug }}
+
+      release: ${{ inputs.release }}
+
+      configure_preset: "${{ inputs.configure_preset }}"
+
+      build_preset: "${{ inputs.build_preset }}"
+
+      binding_build_preset: "${{ inputs.binding_build_preset }}"
+
+      package_preset: "${{ inputs.package_preset }}"
+
+      package_path: "${{ inputs.package_path }}"
+
+      artifact_match_pattern: "${{ inputs.artifact_match_pattern }}"

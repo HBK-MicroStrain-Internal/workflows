@@ -1,4 +1,4 @@
-name: MSVC Workflow
+name: MSVC Workflow For Language Bindings
 
 on:
   workflow_call:
@@ -48,25 +48,10 @@ on:
         required: true
         default: ''
 
-      unit_test:
-        description: Enable unit testing
-        type: boolean
-        default: false
-
-      unit_test_preset:
-        description: The preset sub-type used for the unit test. I.E. 'unit-tests' for the unit tests preset
+      binding_build_preset:
+        description: The preset sub-type used for the binding build. I.E. 'python' for the python binding preset
         type: string
-        default: 'unit-tests'
-
-      integration_test:
-        description: Enable integration testing
-        type: boolean
-        default: false
-
-      integration_test_preset:
-        description: The preset sub-type used for the integration test. I.E. 'integration-tests' for the integration tests preset
-        type: string
-        default: 'integration-tests'
+        default: ''
 
       package_preset:
         description: The preset sub-type used for the packaging. I.E. 'static' for the static package preset
@@ -86,16 +71,12 @@ on:
 
 jobs:
   workflow:
-    name: "MSVC Workflow"
-    uses: ./.github/workflows/base.yml
+    name: "MSVC Binding Workflow"
+    uses: ./.github/workflows/base-bindings.yml
     with:
       job_name: "${{ inputs.job_name }} MSVC ${{ inputs.year }} ${{ inputs.arch }}"
 
       runner_name: windows-latest
-
-      unit_test: ${{ inputs.unit_test }}
-
-      integration_test: ${{ inputs.integration_test }}
 
       preset_prefix: "msvc-${{ inputs.year }}-${{ inputs.arch }}"
 
@@ -107,13 +88,7 @@ jobs:
 
       debug_build_preset_name: "${{ inputs.build_preset }}-debug"
 
-      debug_unit_test_build_preset_name: "${{ inputs.unit_test_preset }}-debug"
-
-      debug_unit_test_preset_name: "${{ inputs.unit_test_preset }}-debug"
-
-      debug_integration_test_build_preset_name: "${{ inputs.integration_test_preset }}-debug"
-
-      debug_integration_test_preset_name: "${{ inputs.integration_test_preset }}-debug"
+      debug_binding_build_preset_name: "${{ inputs.binding_build_preset }}-debug"
 
       release: ${{ inputs.release }}
 
@@ -121,13 +96,7 @@ jobs:
 
       release_build_preset_name: "${{ inputs.build_preset }}-release"
 
-      release_unit_test_build_preset_name: "${{ inputs.unit_test_preset }}-release"
-
-      release_unit_test_preset_name: "${{ inputs.unit_test_preset }}-release"
-
-      release_integration_test_build_preset_name: "${{ inputs.integration_test_preset }}-release"
-
-      release_integration_test_preset_name: "${{ inputs.integration_test_preset }}-release"
+      release_binding_build_preset_name: "${{ inputs.binding_build_preset }}-release"
 
       debug_package_preset_name: "${{ inputs.package_preset }}-debug"
 

@@ -1,0 +1,307 @@
+name: CMake Preset Workflow Base For Language Bindings
+
+on:
+  workflow_call:
+    inputs:
+      job_name:
+        description: Name of the job to display in the GitHub UI
+        type: string
+        required: true
+        default: ''
+
+      runner_name:
+        description: Name of the runner to run this workflow on
+        type: string
+        required: true
+        default: ''
+
+      preset_prefix:
+        description: Prefix which is added to all preset names like msvc-2022-x64
+        type: string
+        required: true
+        default: ''
+
+      preset:
+        description: The preset sub-type used for all presets. I.E. 'static' for the static preset
+        type: string
+        default: ''
+
+      debug:
+        description: Enable debug builds
+        type: boolean
+        default: false
+
+      debug_configure_preset_name:
+        description: Name of the CMake configure preset to use for debug builds
+        type: string
+        default: ''
+
+      debug_build_preset_name:
+        description: Name of the CMake build preset to use for the debug library
+        type: string
+        default: ''
+
+      debug_binding_build_preset_name:
+        description: Name of the CMake build preset to use for the debug bindings
+        type: string
+        default: ''
+
+      release:
+        description: Enable release builds
+        type: boolean
+        default: false
+
+      release_configure_preset_name:
+        description: Name of the CMake configure preset to use for release builds
+        type: string
+        default: ''
+
+      release_build_preset_name:
+        description: Name of the CMake build preset to use for the release library/application
+        type: string
+        default: ''
+
+      release_binding_build_preset_name:
+        description: Name of the CMake build preset to use for the release bindings
+        type: string
+        default: ''
+
+      debug_package_preset_name:
+        description: Name of the CMake package preset to use for the debug package
+        type: string
+        default: ''
+
+      release_package_preset_name:
+        description: Name of the CMake package preset to use for the release package
+        type: string
+        default: ''
+
+      combined_package_preset_name:
+        description: Name of the CMake package preset to use for the combined debug & release package
+        type: string
+        default: ''
+
+      package_path:
+        description: Path to the directory containing the package files
+        type: string
+        default: ''
+
+      artifact_match_pattern:
+        description: Pattern to match for artifacts to upload
+        type: string
+        default: '*.zip'
+
+jobs:
+  workflow:
+    name: "${{ inputs.job_name }}"
+    runs-on: ${{ inputs.runner_name }}
+
+    steps:
+      - name: "Handle Inputs"
+        id: handle_inputs
+        shell: bash
+        run: |
+          # Combine preset names for use in the workflow
+          # This prepends the preset prefix to the preset name
+
+          echo "validation_prefix=${{ inputs.preset_prefix }}-${{ inputs.preset }}" >> $GITHUB_OUTPUT
+
+
+          # Create the debug preset options
+
+          echo "debug_configure_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_configure_preset_name }}" >> $GITHUB_OUTPUT
+
+          echo "debug_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_build_preset_name }}" >> $GITHUB_OUTPUT
+
+          echo "debug_binding_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_binding_build_preset_name }}" >> $GITHUB_OUTPUT
+
+          echo "debug_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_package_preset_name }}" >> $GITHUB_OUTPUT
+
+
+          # Create the release preset options
+
+          echo "release_configure_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_configure_preset_name }}" >> $GITHUB_OUTPUT
+
+          echo "release_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_build_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "release_binding_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_binding_build_preset_name }}" >> $GITHUB_OUTPUT
+
+          echo "release_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_package_preset_name }}" >> $GITHUB_OUTPUT
+
+
+          # Create Both debug and release preset options
+
+          echo "combined_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.combined_package_preset_name }}" >> $GITHUB_OUTPUT
+
+      - name: "Validate Inputs"
+        shell: bash
+        run: |
+          # Generic options
+
+          if [ -z "${{ inputs.preset_prefix }}" ]; then
+            echo "A preset prefix is required using 'preset_prefix'"
+            exit 1
+          fi
+
+
+          # Debug options
+
+          if [ "${{ inputs.debug }}" == "true" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A debug configure preset is required using 'debug_configure_preset_name'"
+              exit 1
+            fi
+
+            if [ -z "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A debug build preset is required using 'debug_build_preset_name'"
+              exit 1
+            fi
+
+            if [ -z "${{ steps.handle_inputs.outputs.debug_binding_build_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.debug_binding_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A debug binding build preset is required using 'debug_binding_build_preset_name'"
+              exit 1
+            fi
+
+            if [ -z "${{ steps.handle_inputs.outputs.debug_package_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.debug_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A debug package preset is required using 'debug_package_preset_name'"
+              exit 1
+            fi
+          fi
+
+
+          # Release options
+
+          if [ "${{ inputs.release }}" == "true" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.release_configure_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.release_configure_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A release configure preset is required using 'release_configure_preset_name'"
+              exit 1
+            fi
+
+            if [ -z "${{ steps.handle_inputs.outputs.release_build_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.release_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A release build preset is required using 'release_build_preset_name'"
+              exit 1
+            fi
+
+            if [ -z "${{ steps.handle_inputs.outputs.release_binding_build_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.release_binding_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A release binding build preset is required using 'release_binding_build_preset_name'"
+              exit 1
+            fi
+
+            if [ -z "${{ steps.handle_inputs.outputs.release_package_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.release_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A release package preset is required using 'release_package_preset_name'"
+              exit 1
+            fi
+          fi
+
+
+          # Both Debug and Release options
+
+          if [ "${{ inputs.debug }}" == "true" ] && [ "${{ inputs.release }}" == "true" ]; then
+            if [ -z "${{ steps.handle_inputs.outputs.combined_package_preset_name }}" ] &&
+              [ "${{ steps.handle_inputs.outputs.combined_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              echo "A debug and release package preset is required using 'combined_package_preset_name'"
+              exit 1
+            fi
+          fi
+
+      - name: "Checkout"
+        uses: HBK-MicroStrain-Internal/actions/checkout@main
+
+      - name: "Configure (Debug)"
+        if: >-
+          ${{
+            inputs.debug
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}"
+
+      - name: "Build (Debug)"
+        if: >-
+          ${{
+            inputs.debug
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.debug_build_preset_name }}"
+
+      - name: "Build Binding (Debug)"
+        if: >-
+          ${{
+            inputs.debug
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.debug_binding_build_preset_name }}"
+
+      - name: "Configure (Release)"
+        if: >-
+          ${{
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.release_configure_preset_name }}"
+
+      - name: "Build (Release)"
+        if: >-
+          ${{
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.release_build_preset_name }}"
+
+      - name: "Build Binding (Release)"
+        if: >-
+          ${{
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-build@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.release_binding_build_preset_name }}"
+
+      - name: "Package (Debug)"
+        if: >-
+          ${{
+            inputs.debug &&
+            !inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.debug_package_preset_name }}"
+
+      - name: "Package (Release)"
+        if: >-
+          ${{
+            !inputs.debug &&
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.release_package_preset_name }}"
+
+      - name: "Package (Debug & Release)"
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.release
+          }}
+        uses: HBK-MicroStrain-Internal/actions/cmake-package@main
+        with:
+          preset_name: "${{ steps.handle_inputs.outputs.combined_package_preset_name }}"
+
+      - name: "Archive Artifacts"
+        uses: HBK-MicroStrain-Internal/actions/archive-artifacts@main
+        with:
+          artifact_name: "${{ inputs.job_name }}"
+          path: "${{ inputs.package_path }}"
+          file_name: "${{ inputs.artifact_match_pattern }}"
