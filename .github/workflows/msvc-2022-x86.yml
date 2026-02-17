@@ -59,6 +59,11 @@ on:
         type: string
         default: ''
 
+      package_path:
+        description: Path to the directory containing the package files
+        type: string
+        default: ''
+
       artifact_match_pattern:
         description: Pattern to match for artifacts to upload
         type: string
@@ -94,5 +99,7 @@ jobs:
       integration_test_preset: "${{ inputs.integration_test_preset }}"
 
       package_preset: "${{ inputs.package_preset }}"
+
+      package_path: "${{ inputs.package_path }}"
 
       artifact_match_pattern: "${{ inputs.artifact_match_pattern }}"
