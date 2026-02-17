@@ -190,26 +190,26 @@ jobs:
           # Debug options
           
           if [ "${{ inputs.debug }}" == "true" ]; then
-            if [ -z "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}" ] ||
+            if [ -z "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}" ] &&
               [ "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug configure preset is required using 'debug_configure_preset_name'"
               exit 1
             fi
           
-            if [ -z "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" ] ||
+            if [ -z "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" ] &&
               [ "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug build preset is required using 'debug_build_preset_name'"
               exit 1
             fi
           
             if [ "${{ inputs.unit_test }}" == "true" ]; then
-              if [ -z "${{ steps.handle_inputs.outputs.debug_unit_test_build_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.debug_unit_test_build_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.debug_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test debug build preset is required using 'debug_unit_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ steps.handle_inputs.outputs.debug_unit_test_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.debug_unit_test_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.debug_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test debug preset is required using 'debug_unit_test_preset_name'"
                 exit 1
@@ -217,20 +217,20 @@ jobs:
             fi
           
             if [ "${{ inputs.integration_test }}" == "true" ]; then
-              if [ -z "${{ steps.handle_inputs.outputs.debug_integration_test_build_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.debug_integration_test_build_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.debug_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test debug build preset is required using 'debug_integration_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ steps.handle_inputs.outputs.debug_integration_test_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.debug_integration_test_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.debug_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test debug preset is required using 'debug_integration_test_preset_name'"
                 exit 1
               fi
             fi
           
-            if [ -z "${{ steps.handle_inputs.outputs.debug_package_preset_name }}" ] ||
+            if [ -z "${{ steps.handle_inputs.outputs.debug_package_preset_name }}" ] &&
               [ "${{ steps.handle_inputs.outputs.debug_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug package preset is required using 'debug_package_preset_name'"
               exit 1
@@ -241,26 +241,26 @@ jobs:
           # Release options
           
           if [ "${{ inputs.release }}" == "true" ]; then
-            if [ -z "${{ steps.handle_inputs.outputs.release_configure_preset_name }}" ] ||
+            if [ -z "${{ steps.handle_inputs.outputs.release_configure_preset_name }}" ] &&
               [ "${{ steps.handle_inputs.outputs.release_configure_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A release configure preset is required using 'release_configure_preset_name'"
               exit 1
             fi
           
-            if [ -z "${{ steps.handle_inputs.outputs.release_build_preset_name }}" ] ||
+            if [ -z "${{ steps.handle_inputs.outputs.release_build_preset_name }}" ] &&
               [ "${{ steps.handle_inputs.outputs.release_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A release build preset is required using 'release_build_preset_name'"
               exit 1
             fi
           
             if [ "${{ inputs.unit_test }}" == "true" ]; then
-              if [ -z "${{ steps.handle_inputs.outputs.release_unit_test_build_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.release_unit_test_build_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.release_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test release build preset is required using 'release_unit_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ steps.handle_inputs.outputs.release_unit_test_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.release_unit_test_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.release_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test release preset is required using 'release_unit_test_preset_name'"
                 exit 1
@@ -268,20 +268,20 @@ jobs:
             fi
           
             if [ "${{ inputs.integration_test }}" == "true" ]; then
-              if [ -z "${{ steps.handle_inputs.outputs.release_integration_test_build_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.release_integration_test_build_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.release_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test release build preset is required using 'release_integration_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ steps.handle_inputs.outputs.release_integration_test_preset_name }}" ] ||
+              if [ -z "${{ steps.handle_inputs.outputs.release_integration_test_preset_name }}" ] &&
                 [ "${{ steps.handle_inputs.outputs.release_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test release preset is required using 'release_integration_test_preset_name'"
                 exit 1
               fi
             fi
           
-            if [ -z "${{ steps.handle_inputs.outputs.release_package_preset_name }}" ] ||
+            if [ -z "${{ steps.handle_inputs.outputs.release_package_preset_name }}" ] &&
               [ "${{ steps.handle_inputs.outputs.release_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A release package preset is required using 'release_package_preset_name'"
               exit 1
@@ -292,7 +292,7 @@ jobs:
           # Both Debug and Release options
           
           if [ "${{ inputs.debug }}" == "true" ] && [ "${{ inputs.release }}" == "true" ]; then
-            if [ -z "${{ steps.handle_inputs.outputs.combined_package_preset_name }}" ] ||
+            if [ -z "${{ steps.handle_inputs.outputs.combined_package_preset_name }}" ] &&
               [ "${{ steps.handle_inputs.outputs.combined_package_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
               echo "A debug and release package preset is required using 'combined_package_preset_name'"
               exit 1
