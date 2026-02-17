@@ -9,6 +9,11 @@ on:
         required: true
         default: ''
 
+      preset:
+        description: The preset sub-type used for all presets. I.E. 'static' for the static preset
+        type: string
+        default: ''
+
       debug:
         description: Enable debug builds
         type: boolean
@@ -22,13 +27,11 @@ on:
       configure_preset:
         description: The preset sub-type used for configuration. I.E. 'tests' for the testing preset
         type: string
-        required: true
         default: ''
 
       build_preset:
         description: The preset sub-type used for the build. I.E. 'static' for the static library preset
         type: string
-        required: true
         default: ''
 
       unit_test:
@@ -54,7 +57,6 @@ on:
       package_preset:
         description: The preset sub-type used for the packaging. I.E. 'static' for the static package preset
         type: string
-        required: true
         default: ''
 
       artifact_match_pattern:
@@ -64,19 +66,33 @@ on:
 
 jobs:
   workflow:
-    name: MSVC 2022 x64 Workflow
+    name: "MSVC 2022 x64 Workflow"
     uses: ./.github/workflows/msvc-base.yml
     with:
-      job_name: ${{ inputs.job_name }}
-      year: '2022'
-      arch: 'x64'
+      job_name: "${{ inputs.job_name }}"
+
+      year: "2022"
+
+      arch: "x64"
+
+      preset: ${{ inputs.preset }}
+
       debug: ${{ inputs.debug }}
+
       release: ${{ inputs.release }}
-      configure_preset: ${{ inputs.configure_preset }}
-      build_preset: ${{ inputs.build_preset }}
+
+      configure_preset: "${{ inputs.configure_preset }}"
+
+      build_preset: "${{ inputs.build_preset }}"
+
       unit_test: ${{ inputs.unit_test }}
-      unit_test_preset: ${{ inputs.unit_test_preset }}
+
+      unit_test_preset: "${{ inputs.unit_test_preset }}"
+
       integration_test: ${{ inputs.integration_test }}
-      integration_test_preset: ${{ inputs.unit_test_preset }}
-      package_preset: ${{ inputs.unit_test_preset }}
-      artifact_match_pattern: ${{ inputs.artifact_match_pattern }}
+
+      integration_test_preset: "${{ inputs.unit_test_preset }}"
+
+      package_preset: "${{ inputs.unit_test_preset }}"
+
+      artifact_match_pattern: "${{ inputs.artifact_match_pattern }}"

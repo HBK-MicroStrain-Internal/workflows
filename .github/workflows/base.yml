@@ -15,6 +15,17 @@ on:
         required: true
         default: ''
 
+      preset_prefix:
+        description: Prefix which is added to all preset names like msvc-2022-x64
+        type: string
+        required: true
+        default: ''
+
+      preset:
+        description: The preset sub-type used for all presets. I.E. 'static' for the static preset
+        type: string
+        default: ''
+
       unit_test:
         description: Enable unit testing
         type: boolean
@@ -33,7 +44,6 @@ on:
       debug_configure_preset_name:
         description: Name of the CMake configure preset to use for debug builds
         type: string
-        required: true
         default: ''
 
       debug_build_preset_name:
@@ -69,7 +79,6 @@ on:
       release_configure_preset_name:
         description: Name of the CMake configure preset to use for release builds
         type: string
-        required: true
         default: ''
 
       release_build_preset_name:
@@ -123,94 +132,150 @@ jobs:
     runs-on: ${{ inputs.runner_name }}
 
     steps:
+      - name: Handle Inputs
+        shell: bash
+        run: |
+          # Combine preset names for use in the workflow
+          # This prepends the preset prefix to the preset name
+          
+          echo "validation_prefix=${{ inputs.preset_prefix }}-${{ inputs.preset }}" >> $GITHUB_OUTPUT
+          
+          
+          # Create the debug preset options
+          
+          echo "debug_configure_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_configure_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "debug_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_build_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "debug_unit_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_unit_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "debug_unit_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_unit_test_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "debug_integration_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_integration_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "debug_integration_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_integration_test_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "debug_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_package_preset_name }}" >> $GITHUB_OUTPUT
+          
+          
+          # Create the release preset options
+          
+          echo "release_configure_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_configure_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "release_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_build_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "release_unit_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_unit_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "release_unit_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_unit_test_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "release_integration_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_integration_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "release_integration_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_integration_test_preset_name }}" >> $GITHUB_OUTPUT
+          
+          echo "release_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_package_preset_name }}" >> $GITHUB_OUTPUT
+          
+          
+          # Create Both debug and release preset options
+          
+          echo "combined_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.combined_package_preset_name }}" >> $GITHUB_OUTPUT
+
       - name: Validate Inputs
         shell: bash
         run: |
+          # Generic options
+          
+          if [ -z "${{ inputs.preset_prefix }}" ]; then
+            echo "A preset prefix is required using 'preset_prefix'"
+            exit 1
+          fi
+          
+          
           # Debug options
+          
           if [ "${{ inputs.debug }}" == "true" ]; then
-            if [ -z "${{ inputs.debug_configure_preset_name }}" ]; then
+            if [ -z "${{ inputs.debug_configure_preset_name }}" ] || [ "${{ inputs.debug_configure_preset_name }}" == "${{ validation_prefix }}" ]; then
               echo "A debug configure preset is required using 'debug_configure_preset_name'"
               exit 1
             fi
           
-            if [ -z "${{ inputs.debug_build_preset_name }}" ]; then
+            if [ -z "${{ inputs.debug_build_preset_name }}" ] || [ "${{ inputs.debug_build_preset_name }}" == "${{ validation_prefix }}" ]; then
               echo "A debug build preset is required using 'debug_build_preset_name'"
               exit 1
             fi
           
             if [ "${{ inputs.unit_test }}" == "true" ]; then
-              if [ -z "${{ inputs.debug_unit_test_build_preset_name }}" ]; then
+              if [ -z "${{ inputs.debug_unit_test_build_preset_name }}" ] || [ "${{ inputs.debug_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test debug build preset is required using 'debug_unit_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.debug_unit_test_preset_name }}" ]; then
+              if [ -z "${{ inputs.debug_unit_test_preset_name }}" ] || [ "${{ inputs.debug_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test debug preset is required using 'debug_unit_test_preset_name'"
                 exit 1
               fi
             fi
           
             if [ "${{ inputs.integration_test }}" == "true" ]; then
-              if [ -z "${{ inputs.debug_integration_test_build_preset_name }}" ]; then
+              if [ -z "${{ inputs.debug_integration_test_build_preset_name }}" ] || [ "${{ inputs.debug_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test debug build preset is required using 'debug_integration_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.debug_integration_test_preset_name }}" ]; then
+              if [ -z "${{ inputs.debug_integration_test_preset_name }}" ] || [ "${{ inputs.debug_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test debug preset is required using 'debug_integration_test_preset_name'"
                 exit 1
               fi
             fi
           
-            if [ -z "${{ inputs.debug_package_preset_name }}" ]; then
+            if [ -z "${{ inputs.debug_package_preset_name }}" ] || [ "${{ inputs.debug_package_preset_name }}" == "${{ validation_prefix }}" ]; then
               echo "A debug package preset is required using 'debug_package_preset_name'"
               exit 1
             fi
           fi
           
+          
           # Release options
+          
           if [ "${{ inputs.release }}" == "true" ]; then
-            if [ -z "${{ inputs.release_configure_preset_name }}" ]; then
+            if [ -z "${{ inputs.release_configure_preset_name }}" ] || [ "${{ inputs.release_configure_preset_name }}" == "${{ validation_prefix }}" ]; then
               echo "A release configure preset is required using 'release_configure_preset_name'"
               exit 1
             fi
           
-            if [ -z "${{ inputs.release_build_preset_name }}" ]; then
+            if [ -z "${{ inputs.release_build_preset_name }}" ] || [ "${{ inputs.release_build_preset_name }}" == "${{ validation_prefix }}" ]; then
               echo "A release build preset is required using 'release_build_preset_name'"
               exit 1
             fi
           
             if [ "${{ inputs.unit_test }}" == "true" ]; then
-              if [ -z "${{ inputs.release_unit_test_build_preset_name }}" ]; then
+              if [ -z "${{ inputs.release_unit_test_build_preset_name }}" ] || [ "${{ inputs.release_unit_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test release build preset is required using 'release_unit_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.release_unit_test_preset_name }}" ]; then
+              if [ -z "${{ inputs.release_unit_test_preset_name }}" ] || [ "${{ inputs.release_unit_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "A unit test release preset is required using 'release_unit_test_preset_name'"
                 exit 1
               fi
             fi
           
             if [ "${{ inputs.integration_test }}" == "true" ]; then
-              if [ -z "${{ inputs.release_integration_test_build_preset_name }}" ]; then
+              if [ -z "${{ inputs.release_integration_test_build_preset_name }}" ] || [ "${{ inputs.release_integration_test_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test release build preset is required using 'release_integration_test_build_preset_name'"
                 exit 1
               fi
           
-              if [ -z "${{ inputs.release_integration_test_preset_name }}" ]; then
+              if [ -z "${{ inputs.release_integration_test_preset_name }}" ] || [ "${{ inputs.release_integration_test_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
                 echo "An integration test release preset is required using 'release_integration_test_preset_name'"
                 exit 1
               fi
             fi
           
-            if [ -z "${{ inputs.release_package_preset_name }}" ]; then
+            if [ -z "${{ inputs.release_package_preset_name }}" ] || [ "${{ inputs.release_package_preset_name }}" == "${{ validation_prefix }}" ]; then
               echo "A release package preset is required using 'release_package_preset_name'"
               exit 1
             fi
           fi
           
+          
           # Both Debug and Release options
+          
           if [ "${{ inputs.debug }}" == "true" ] && [ "${{ inputs.release }}" == "true" ]; then
             if [ -z "${{ inputs.combined_package_preset_name }}" ]; then
               echo "A debug and release package preset is required using 'combined_package_preset_name'"

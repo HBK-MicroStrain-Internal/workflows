@@ -21,6 +21,11 @@ on:
         required: true
         default: 'x64'
 
+      preset:
+        description: The preset sub-type used for all presets. I.E. 'static' for the static preset
+        type: string
+        default: ''
+
       debug:
         description: Enable debug builds
         type: boolean
@@ -76,28 +81,53 @@ on:
 
 jobs:
   workflow:
-    name: MSVC Workflow
+    name: "MSVC Workflow"
     uses: ./.github/workflows/base.yml
     with:
-      job_name: ${{ inputs.job_name }}
+      job_name: "${{ inputs.job_name }} (MSVC ${{ inputs.year }} ${{ inputs.arch }})"
+
       runner_name: windows-latest
+
       unit_test: ${{ inputs.unit_test }}
+
       integration_test: ${{ inputs.integration_test }}
+
+      preset_prefix: "msvc-${{ inputs.year }}-${{ inputs.arch }}"
+
+      preset: "${{ inputs.preset }}"
+
       debug: ${{ inputs.debug }}
-      debug_configure_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.configure_preset }}
-      debug_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.build_preset }}-debug
-      debug_unit_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
-      debug_unit_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-debug
-      debug_integration_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
-      debug_integration_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-debug
+
+      debug_configure_preset_name: "${{ inputs.configure_preset }}"
+
+      debug_build_preset_name: "${{ inputs.build_preset }}-debug"
+
+      debug_unit_test_build_preset_name: "${{ inputs.unit_test_preset }}-debug"
+
+      debug_unit_test_preset_name: "${{ inputs.unit_test_preset }}-debug"
+
+      debug_integration_test_build_preset_name: "${{ inputs.integration_test_preset }}-debug"
+
+      debug_integration_test_preset_name: "${{ inputs.integration_test_preset }}-debug"
+
       release: ${{ inputs.release }}
-      release_configure_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.configure_preset }}
-      release_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.build_preset }}-release
-      release_unit_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
-      release_unit_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.unit_test_preset }}-release
-      release_integration_test_build_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
-      release_integration_test_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.integration_test_preset }}-release
-      debug_package_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.package_preset }}-debug
-      release_package_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.package_preset }}-release
-      combined_package_preset_name: msvc-${{ inputs.year }}-${{ inputs.arch }}-${{ inputs.package_preset }}
-      artifact_match_pattern: ${{ inputs.artifact_match_pattern }}
+
+      release_configure_preset_name: "${{ inputs.configure_preset }}"
+
+      release_build_preset_name: "${{ inputs.build_preset }}-release"
+
+      release_unit_test_build_preset_name: "${{ inputs.unit_test_preset }}-release"
+
+      release_unit_test_preset_name: "${{ inputs.unit_test_preset }}-release"
+
+      release_integration_test_build_preset_name: "${{ inputs.integration_test_preset }}-release"
+
+      release_integration_test_preset_name: "${{ inputs.integration_test_preset }}-release"
+
+      debug_package_preset_name: "${{ inputs.package_preset }}-debug"
+
+      release_package_preset_name: "${{ inputs.package_preset }}-release"
+
+      combined_package_preset_name: "${{ inputs.package_preset }}"
+
+      artifact_match_pattern: "${{ inputs.artifact_match_pattern }}"
