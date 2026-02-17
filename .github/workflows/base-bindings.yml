@@ -111,7 +111,7 @@ jobs:
 
           echo "debug_configure_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_configure_preset_name }}" >> $GITHUB_OUTPUT
 
-          echo "debug_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "debug_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.debug_build_preset_name }}" >> $GITHUB_OUTPUT
 
           echo "debug_binding_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_binding_build_preset_name }}" >> $GITHUB_OUTPUT
 
@@ -122,7 +122,7 @@ jobs:
 
           echo "release_configure_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_configure_preset_name }}" >> $GITHUB_OUTPUT
 
-          echo "release_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "release_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.release_build_preset_name }}" >> $GITHUB_OUTPUT
           
           echo "release_binding_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_binding_build_preset_name }}" >> $GITHUB_OUTPUT
 
@@ -154,7 +154,7 @@ jobs:
             fi
 
             if [ -z "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" ] &&
-              [ "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              [ "${{ steps.handle_inputs.outputs.debug_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
               echo "A debug build preset is required using 'debug_build_preset_name'"
               exit 1
             fi
@@ -183,7 +183,7 @@ jobs:
             fi
 
             if [ -z "${{ steps.handle_inputs.outputs.release_build_preset_name }}" ] &&
-              [ "${{ steps.handle_inputs.outputs.release_build_preset_name }}" == "${{ steps.handle_inputs.outputs.validation_prefix }}" ]; then
+              [ "${{ steps.handle_inputs.outputs.release_build_preset_name }}" == "${{ inputs.preset_prefix }}" ]; then
               echo "A release build preset is required using 'release_build_preset_name'"
               exit 1
             fi
