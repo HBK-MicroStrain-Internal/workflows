@@ -148,11 +148,11 @@ jobs:
           
           echo "debug_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_build_preset_name }}" >> $GITHUB_OUTPUT
           
-          echo "debug_unit_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_unit_test_build_preset_name }}" >> $GITHUB_OUTPUT
-          echo "debug_unit_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_unit_test_preset_name }}" >> $GITHUB_OUTPUT
+          echo "debug_unit_test_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.debug_unit_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "debug_unit_test_preset_name=${{ inputs.preset_prefix }}-${{ inputs.debug_unit_test_preset_name }}" >> $GITHUB_OUTPUT
           
-          echo "debug_integration_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_integration_test_build_preset_name }}" >> $GITHUB_OUTPUT
-          echo "debug_integration_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.debug_integration_test_preset_name }}" >> $GITHUB_OUTPUT
+          echo "debug_integration_test_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.debug_integration_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "debug_integration_test_preset_name=${{ inputs.preset_prefix }}-${{ inputs.debug_integration_test_preset_name }}" >> $GITHUB_OUTPUT
           
           echo "debug_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.debug_package_preset_name }}" >> $GITHUB_OUTPUT
           
@@ -163,11 +163,11 @@ jobs:
           
           echo "release_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_build_preset_name }}" >> $GITHUB_OUTPUT
           
-          echo "release_unit_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_unit_test_build_preset_name }}" >> $GITHUB_OUTPUT
-          echo "release_unit_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_unit_test_preset_name }}" >> $GITHUB_OUTPUT
+          echo "release_unit_test_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.release_unit_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "release_unit_test_preset_name=${{ inputs.preset_prefix }}-${{ inputs.release_unit_test_preset_name }}" >> $GITHUB_OUTPUT
           
-          echo "release_integration_test_build_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_integration_test_build_preset_name }}" >> $GITHUB_OUTPUT
-          echo "release_integration_test_preset_name=${{ inputs.preset_prefix }}${{ inputs.release_integration_test_preset_name }}" >> $GITHUB_OUTPUT
+          echo "release_integration_test_build_preset_name=${{ inputs.preset_prefix }}-${{ inputs.release_integration_test_build_preset_name }}" >> $GITHUB_OUTPUT
+          echo "release_integration_test_preset_name=${{ inputs.preset_prefix }}-${{ inputs.release_integration_test_preset_name }}" >> $GITHUB_OUTPUT
           
           echo "release_package_preset_name=${{ inputs.preset_prefix }}-${{ inputs.preset }}${{ inputs.release_package_preset_name }}" >> $GITHUB_OUTPUT
           
