@@ -1,0 +1,103 @@
+name: Changelog PR Check
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: "Base branch for comparison"
+        required: true
+        type: string
+
+      head_branch:
+        description: "Head branch for comparison"
+        required: true
+        type: string
+
+      pr_owner:
+        description: "Owner of the pull request"
+        required: true
+        type: string
+
+      pr_id:
+        description: "Issue ID of the pull request"
+        required: true
+        type: number
+
+env:
+  # GitHub doesn't allow using environment variables within other environment variables
+  CHANGELOG_FILENAME: "CHANGELOG.md"
+  SKIP_KEYWORD: "skip-changelog"
+  CHECK_FAIL_HEADER: "**Changelog Check Failed**"
+  UPDATE_CHANGELOG_MESSAGE: "Please update CHANGELOG.md with your changes"
+  BYPASS_OPTION_MESSAGE: "Alternatively, include skip-changelog in a PR comment to bypass this check"
+
+jobs:
+  check-changelog:
+    name: "Changelog Modification/Bypass Check"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history
+          fetch-depth: 0
+
+      - name: "${{ env.CHANGELOG_FILENAME }} Modification Check"
+        id: changelog-modified
+        shell: bash
+        run: |
+          modified="false"
+
+          # Check if ${{ env.CHANGELOG_FILENAME }} was modified
+          if git diff --name-only "${{ inputs.base_branch }}" "${{ inputs.head_branch }}" | grep -q "^${{ env.CHANGELOG_FILENAME }}$"; then
+            modified="true"
+          fi
+
+          echo "modified=$modified" >> $GITHUB_OUTPUT
+
+      - name: "${{ env.CHANGELOG_FILENAME }} Bypass Check"
+        id: changelog-bypassed
+        uses: actions/github-script@v7
+        env:
+          SKIP_KEYWORD: ${{ env.SKIP_KEYWORD }}
+        with:
+          script: |
+            const comments = await github.rest.issues.listComments({
+              issue_number: ${{ inputs.pr_id }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const has_bypass = comments.data.come(comment =>
+              comment.user.login === '${{ inputs.pr_owner }}' &&
+              comment.body.includes(process.env.SKIP_KEYWORD)
+            );
+            
+            core.setOutput('bypassed', has_bypass);
+
+      - name: "Print Status"
+        id: print-status
+        shell: bash
+        run: |
+          passed="true"
+          
+          if [ "${{ steps.changelog-modified.outputs.modified }}" = "true" ]; then
+            echo "✅ ${{ env.CHANGELOG_FILENAME }} has been modified - check passed"
+          elif [ "${{ steps.changelog-bypassed.outputs.bypassed }}" = "true" ]; then
+            echo "✅ Bypass flag found in a comment - check passed"
+          else
+            echo "❌ ${{ env.CHANGELOG_FILENAME }} has not been modified"
+            echo ""
+            echo "${{ env.UPDATE_CHANGELOG_MESSAGE }}."
+            echo "${{ env.BYPASS_OPTION_MESSAGE }}."
+            passed="false"
+          fi
+          
+          echo "passed=$passed" >> $GITHUB_OUTPUT
+
+      - name: "Update PR Bot Message"
+        uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
+        with:
+          check_name: "${{ env.CHECK_FAIL_HEADER }}"
+          failure_message: "${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.\n\n${{ env.BYPASS_OPTION_MESSAGE }} for this PR."
+          job_status: "${{ steps.print-status.passed }}"
