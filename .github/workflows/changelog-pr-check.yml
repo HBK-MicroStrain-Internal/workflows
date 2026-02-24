@@ -71,7 +71,7 @@ jobs:
               repo: context.repo.repo,
             });
 
-            const has_bypass = comments.data.come(comment =>
+            const has_bypass = comments.data.some(comment =>
               comment.user.login === '${{ inputs.pr_owner }}' &&
               comment.body.includes(process.env.SKIP_KEYWORD)
             );
