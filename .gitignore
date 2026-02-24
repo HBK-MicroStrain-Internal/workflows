@@ -8,10 +8,29 @@
 !/README.md
 
 # Only workflows in the workflows directory are allowed
-!/.github/
-/.github/*
-!/.github/workflows/
-!/.github/workflows/*
 
+# Allow the .github directory
+!/.github/
+# Ignore all content in the .github directory
+/.github/*
+
+# Allow the workflows directory
+!/.github/workflows/
+# Ignore all content in the workflows directory
+/.github/workflows/*
+# Allow only workflows in the workflows directory
+!/.github/workflows/*.yml
 # No subdirectories in the workflows directory
 /.github/workflows/*/
+
+
+# Only workflow guides in the guides directory are allowed
+
+# Allow the guides directory
+!/guides/
+# Ignore all content in the guides directory
+/guides/*
+# Allow only guides in the guides directory
+!/guides/*.md
+# No subdirectories in the guides directory
+/guides/*/
