@@ -62,17 +62,19 @@ jobs:
         id: changelog-bypassed
         uses: actions/github-script@v7
         env:
+          PR_ID: ${{ inputs.pr_id }}
+          PR_OWNER: ${{ inputs.pr_owner }}
           SKIP_KEYWORD: ${{ env.SKIP_KEYWORD }}
         with:
           script: |
             const comments = await github.rest.issues.listComments({
-              issue_number: ${{ inputs.pr_id }},
+              issue_number: process.env.PR_ID,
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
 
             const has_bypass = comments.data.some(comment =>
-              comment.user.login === '${{ inputs.pr_owner }}' &&
+              comment.user.login === process.env.PR_OWNER &&
               comment.body.includes(process.env.SKIP_KEYWORD)
             );
 
@@ -98,7 +100,7 @@ jobs:
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
         if: always()
         with:
-          check_name: "${{ env.CHECK_FAIL_HEADER }}"
-          failure_message: "${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.\n\n${{ env.BYPASS_OPTION_MESSAGE }} for this PR."
-          pr_id: "${{ inputs.pr_id }}"
+          check_name: ${{ env.CHECK_FAIL_HEADER }}
+          failure_message: ${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.\n\n${{ env.BYPASS_OPTION_MESSAGE }} for this PR.
+          pr_id: ${{ inputs.pr_id }}
           check_status: ${{ steps.print-status.outcome }}
