@@ -23,6 +23,11 @@ on:
         required: true
         type: number
 
+      workflow_name:
+        description: "The name of the calling workflow. Use github.workflow"
+        required: true
+        type: string
+
 env:
   # GitHub doesn't allow using environment variables within other environment variables
   CHANGELOG_FILENAME: "CHANGELOG.md"
@@ -108,3 +113,4 @@ jobs:
             ${{ env.BYPASS_OPTION_MESSAGE }} for this PR.
           pr_id: ${{ inputs.pr_id }}
           check_status: ${{ steps.print-status.outcome }}
+          workflow_name: ${{ inputs.workflow_name }}
