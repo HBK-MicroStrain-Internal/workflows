@@ -101,6 +101,10 @@ jobs:
         if: always()
         with:
           check_name: ${{ env.CHECK_FAIL_HEADER }}
-          failure_message: ${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.\n\n${{ env.BYPASS_OPTION_MESSAGE }} for this PR.
+          # This method preserves the newlines properly in the message
+          failure_message: >
+            ${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.
+
+            ${{ env.BYPASS_OPTION_MESSAGE }} for this PR.
           pr_id: ${{ inputs.pr_id }}
           check_status: ${{ steps.print-status.outcome }}
