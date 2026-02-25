@@ -82,8 +82,6 @@ jobs:
         id: print-status
         shell: bash
         run: |
-          passed="true"
-
           if [ "${{ steps.changelog-modified.outputs.modified }}" = "true" ]; then
             echo "✅ ${{ env.CHANGELOG_FILENAME }} has been modified - check passed"
           elif [ "${{ steps.changelog-bypassed.outputs.bypassed }}" = "true" ]; then
@@ -93,15 +91,14 @@ jobs:
             echo ""
             echo "${{ env.UPDATE_CHANGELOG_MESSAGE }}."
             echo "${{ env.BYPASS_OPTION_MESSAGE }}."
-            passed="false"
+            exit 1
           fi
-
-          echo "passed=$passed" >> $GITHUB_OUTPUT
 
       - name: "Update PR Bot Message"
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
+        if: always()
         with:
           check_name: "${{ env.CHECK_FAIL_HEADER }}"
           failure_message: "${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.\n\n${{ env.BYPASS_OPTION_MESSAGE }} for this PR."
           pr_id: "${{ inputs.pr_id }}"
-          check_passed: "${{ steps.print-status.passed }}"
+          check_status: ${{ steps.print-status.outcome }}
