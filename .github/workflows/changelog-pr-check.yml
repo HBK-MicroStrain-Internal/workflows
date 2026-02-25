@@ -2,31 +2,6 @@ name: Changelog PR Check
 
 on:
   workflow_call:
-    inputs:
-      base_branch:
-        description: "Base branch for comparison"
-        required: true
-        type: string
-
-      head_branch:
-        description: "Head branch for comparison"
-        required: true
-        type: string
-
-      pr_owner:
-        description: "Owner of the pull request"
-        required: true
-        type: string
-
-      pr_id:
-        description: "Issue ID of the pull request"
-        required: true
-        type: number
-
-      workflow_name:
-        description: "The name of the calling workflow. Use github.workflow"
-        required: true
-        type: string
 
 env:
   # GitHub doesn't allow using environment variables within other environment variables
@@ -41,6 +16,10 @@ jobs:
     name: "Changelog Modification/Bypass Check"
     runs-on: ubuntu-latest
     steps:
+      - name: "Set Pending Status"
+        id: pr-status
+        uses: HBK-MicroStrain-Internal/actions/pull-request-commit-check@main
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -55,9 +34,7 @@ jobs:
 
           # Check if ${{ env.CHANGELOG_FILENAME }} was modified
           # The commit SHAs need to not be empty too
-          if [ -n ${{ inputs.base_branch }} ] &&
-             [ -n ${{ inputs.head_branch }} ] &&
-             git diff --name-only "${{ inputs.base_branch }}" "${{ inputs.head_branch }}" | grep -q "^${{ env.CHANGELOG_FILENAME }}$"; then
+          if git diff --name-only "${{ steps.pr-status.outputs.base_sha }}" "${{ steps.pr-status.outputs.base_sha }}" | grep -q "^${{ env.CHANGELOG_FILENAME }}$"; then
             modified="true"
           fi
 
@@ -67,8 +44,8 @@ jobs:
         id: changelog-bypassed
         uses: actions/github-script@v7
         env:
-          PR_ID: ${{ inputs.pr_id }}
-          PR_OWNER: ${{ inputs.pr_owner }}
+          PR_ID: ${{ steps.pr-status.outputs.pr_id }}
+          PR_OWNER: ${{ steps.pr-status.outputs.pr_owner }}
           SKIP_KEYWORD: ${{ env.SKIP_KEYWORD }}
         with:
           script: |
@@ -111,6 +88,4 @@ jobs:
             ${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.
 
             ${{ env.BYPASS_OPTION_MESSAGE }} for this PR.
-          pr_id: ${{ inputs.pr_id }}
           check_status: ${{ steps.print-status.outcome }}
-          workflow_name: ${{ inputs.workflow_name }}
