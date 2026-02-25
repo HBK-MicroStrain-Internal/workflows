@@ -96,7 +96,7 @@ jobs:
             exit 1
           fi
 
-      - name: "Update PR Bot Message"
+      - name: "Update PR Status"
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
         if: always()
         with:
