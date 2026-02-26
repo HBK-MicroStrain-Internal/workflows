@@ -16,17 +16,36 @@ jobs:
     name: "Changelog Modification/Bypass Check"
     runs-on: ubuntu-latest
     steps:
+      - name: "Validate Run"
+        id: validate-run
+        shell: bash
+        run: |
+          should_run="false"
+
+          # Only run this workflow for PR changes or when the owner comments
+          # the skip keyword on the PR
+          if [[ "${{ github.event_name }}" == "pull_request" ]] ||
+             ([[ -n "${{ github.event.issue.pull_request }}" ]] &&
+             [[ "${{ github.event.comment.body }}" == "${{ env.SKIP_KEYWORD }}" ]]); then
+            should_run=true"
+          fi
+
+          echo "should_run=$should_run" >> $GITHUB_OUTPUT
+
       - name: "Set Pending Status"
+        if: ${{ steps.validate-run.outputs.should_run == 'true' }}
         id: pr-status
         uses: HBK-MicroStrain-Internal/actions/pull-request-commit-check@main
 
       - name: Checkout
+        if: ${{ steps.validate-run.outputs.should_run == 'true' }}
         uses: actions/checkout@v4
         with:
           # Fetch full history
           fetch-depth: 0
 
       - name: "${{ env.CHANGELOG_FILENAME }} Modification Check"
+        if: ${{ steps.validate-run.outputs.should_run == 'true' }}
         id: changelog-modified
         shell: bash
         run: |
@@ -41,6 +60,7 @@ jobs:
           echo "modified=$modified" >> $GITHUB_OUTPUT
 
       - name: "${{ env.CHANGELOG_FILENAME }} Bypass Check"
+        if: ${{ steps.validate-run.outputs.should_run == 'true' }}
         id: changelog-bypassed
         uses: actions/github-script@v7
         env:
@@ -63,6 +83,7 @@ jobs:
             core.setOutput('bypassed', has_bypass);
 
       - name: "Print Status"
+        if: ${{ steps.validate-run.outputs.should_run == 'true' }}
         id: print-status
         shell: bash
         run: |
@@ -79,8 +100,10 @@ jobs:
           fi
 
       - name: "Update PR Status"
+        # Run on success, or failure of the status print step
+        # If skipped, validate-run.should_run == false, this will not run
+        if: success() || failure()
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
-        if: always()
         with:
           check_name: ${{ env.CHECK_FAIL_HEADER }}
           # This method preserves the newlines properly in the message
