@@ -105,7 +105,12 @@ jobs:
       - name: "Update PR Status"
         # Run on success, or failure of the status print step
         # If skipped, validate-run.should_run == false, this will not run
-        if: success() || failure()
+        if: >-
+          ${{
+            steps.validate-run.outputs.should_run == 'true' &&
+            (success() ||
+            failure())
+          }}
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
         with:
           token: ${{ steps.app-token.outputs.token }}
