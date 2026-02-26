@@ -27,7 +27,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]] ||
              ([[ -n "${{ github.event.issue.pull_request }}" ]] &&
              [[ "${{ github.event.comment.body }}" == "${{ env.SKIP_KEYWORD }}" ]]); then
-            should_run=true"
+            should_run="true"
           fi
 
           echo "should_run=$should_run" >> $GITHUB_OUTPUT
