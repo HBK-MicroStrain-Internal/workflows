@@ -32,17 +32,20 @@ jobs:
 
           echo "should_run=$should_run" >> $GITHUB_OUTPUT
 
+      - name: "Generate GitHub App Token"
+        if: ${{ steps.validate-run.outputs.should_run == 'true' }}
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ inputs.app_id }}
+          private-key: ${{ inputs.app_private_key }}
+
       - name: "Set Pending Status"
         if: ${{ steps.validate-run.outputs.should_run == 'true' }}
         id: pr-status
         uses: HBK-MicroStrain-Internal/actions/pull-request-commit-check@main
-
-      - name: Checkout
-        if: ${{ steps.validate-run.outputs.should_run == 'true' }}
-        uses: actions/checkout@v4
         with:
-          # Fetch full history
-          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: "${{ env.CHANGELOG_FILENAME }} Modification Check"
         if: ${{ steps.validate-run.outputs.should_run == 'true' }}
@@ -105,10 +108,12 @@ jobs:
         if: success() || failure()
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
         with:
+          token: ${{ steps.app-token.outputs.token }}
           check_name: ${{ env.CHECK_FAIL_HEADER }}
           # This method preserves the newlines properly in the message
           failure_message: >
             ${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.
 
             ${{ env.BYPASS_OPTION_MESSAGE }} for this PR.
+          pr_id: ${{ steps.pr-status.outputs.pr_id }}
           check_status: ${{ steps.print-status.outcome }}
