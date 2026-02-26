@@ -2,6 +2,17 @@ name: Changelog PR Check
 
 on:
   workflow_call:
+    inputs:
+      app_id:
+        description: "GitHub App ID for commit check authentication"
+        type: string
+        required: true
+
+      app_private_key:
+        description: "GitHub App private key for commit check authentication"
+        type: string
+        required: true
+
 
 env:
   # GitHub doesn't allow using environment variables within other environment variables
