@@ -117,8 +117,8 @@ jobs:
         if: >-
           ${{
             steps.validate-run.outputs.should_run == 'true' &&
-            (success() ||
-            failure())
+            (steps.print-status.outcome == 'success' ||
+            steps.print-status.outcome == 'failure')
           }}
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
         with:
