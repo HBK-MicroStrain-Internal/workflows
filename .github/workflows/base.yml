@@ -313,7 +313,7 @@ jobs:
         with:
           preset_name: "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}"
 
-      - name: "Auto Keyword Check (Debug)"
+      - name: "Disable auto Keyword (Debug)"
         if: >-
           ${{
             inputs.debug &&
@@ -409,7 +409,7 @@ jobs:
         with:
           preset_name: "${{ steps.handle_inputs.outputs.release_configure_preset_name }}"
 
-      - name: "Auto Keyword Check (Release)"
+      - name: "Disable auto Keyword (Release)"
         if: >-
           ${{
             inputs.release &&
