@@ -7,24 +7,28 @@ on:
         description: Name of the job to display in the GitHub UI
         type: string
         required: true
-        default: ''
 
       runner_name:
         description: Name of the runner to run this workflow on
         type: string
         required: true
-        default: ''
+
+      app_id:
+        description: GitHub App ID for private dependencies
+        type: string
+
+      app_private_key:
+        description: GitHub App private key for private dependencies
+        type: string
 
       preset_prefix:
         description: Prefix which is added to all preset names like msvc-2022-x64
         type: string
         required: true
-        default: ''
 
       preset:
         description: The preset sub-type used for all presets. I.E. 'static' for the static preset
         type: string
-        default: ''
 
       unit_test:
         description: Enable unit testing
@@ -36,6 +40,11 @@ on:
         type: boolean
         default: false
 
+      check_auto:
+        description: Enable checks for the use of the auto keyword
+        type: boolean
+        default: false
+
       debug:
         description: Enable debug builds
         type: boolean
@@ -44,32 +53,26 @@ on:
       debug_configure_preset_name:
         description: Name of the CMake configure preset to use for debug builds
         type: string
-        default: ''
 
       debug_build_preset_name:
         description: Name of the CMake build preset to use for the debug library/application
         type: string
-        default: ''
 
       debug_unit_test_build_preset_name:
         description: Name of the CMake build preset to use for the debug unit tests
         type: string
-        default: ''
 
       debug_unit_test_preset_name:
         description: Name of the CTest preset to use to run debug unit tests
         type: string
-        default: ''
 
       debug_integration_test_build_preset_name:
         description: Name of the CMake build preset to use for the debug integration tests
         type: string
-        default: ''
 
       debug_integration_test_preset_name:
         description: Name of the CTest preset to use to run debug integration tests
         type: string
-        default: ''
 
       release:
         description: Enable release builds
@@ -79,27 +82,22 @@ on:
       release_configure_preset_name:
         description: Name of the CMake configure preset to use for release builds
         type: string
-        default: ''
 
       release_build_preset_name:
         description: Name of the CMake build preset to use for the release library/application
         type: string
-        default: ''
 
       release_unit_test_build_preset_name:
         description: Name of the CMake build preset to use for the release unit tests
         type: string
-        default: ''
 
       release_unit_test_preset_name:
         description: Name of the CTest preset to use to run release unit tests
         type: string
-        default: ''
 
       release_integration_test_build_preset_name:
         description: Name of the CMake build preset to use for the release integration tests
         type: string
-        default: ''
 
       release_integration_test_preset_name:
         description: Name of the CTest preset to use to run release integration tests
@@ -109,22 +107,18 @@ on:
       debug_package_preset_name:
         description: Name of the CMake package preset to use for the debug package
         type: string
-        default: ''
 
       release_package_preset_name:
         description: Name of the CMake package preset to use for the release package
         type: string
-        default: ''
 
       combined_package_preset_name:
         description: Name of the CMake package preset to use for the combined debug & release package
         type: string
-        default: ''
 
       package_path:
         description: Path to the directory containing the package files
         type: string
-        default: ''
 
       artifact_match_pattern:
         description: Pattern to match for artifacts to upload
@@ -306,6 +300,9 @@ jobs:
 
       - name: "Checkout"
         uses: HBK-MicroStrain-Internal/actions/checkout@main
+        with:
+          app_id: "${{ inputs.app_id }}"
+          app_private_key: "${{ inputs.app_private_key }}"
 
       - name: "Configure (Debug)"
         if: >-
@@ -315,6 +312,16 @@ jobs:
         uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
         with:
           preset_name: "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}"
+
+      - name: "Auto Keyword Check (Debug)"
+        if: >-
+          ${{
+            inputs.debug &&
+            inputs.check_auto
+          }}
+        uses: HBK-MicroStrain-Internal/actions/no-auto-check@main
+        with:
+          configure_preset: "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}"
 
       - name: "Build (Debug)"
         if: >-
@@ -401,6 +408,16 @@ jobs:
         uses: HBK-MicroStrain-Internal/actions/cmake-configure@main
         with:
           preset_name: "${{ steps.handle_inputs.outputs.release_configure_preset_name }}"
+
+      - name: "Auto Keyword Check (Release)"
+        if: >-
+          ${{
+            inputs.release &&
+            inputs.check_auto
+          }}
+        uses: HBK-MicroStrain-Internal/actions/no-auto-check@main
+        with:
+          configure_preset: "${{ steps.handle_inputs.outputs.release_configure_preset_name }}"
 
       - name: "Build (Release)"
         if: >-

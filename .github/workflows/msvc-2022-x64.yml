@@ -7,12 +7,18 @@ on:
         description: Name of the job to display in the GitHub UI. I.E. 'Static C++'
         type: string
         required: true
-        default: ''
+
+      app_id:
+        description: GitHub App ID for private dependencies
+        type: string
+
+      app_private_key:
+        description: GitHub App private key for private dependencies
+        type: string
 
       preset:
         description: The preset sub-type used for all presets. I.E. 'static' for the static preset
         type: string
-        default: ''
 
       debug:
         description: Enable debug builds
@@ -27,12 +33,10 @@ on:
       configure_preset:
         description: The preset sub-type used for configuration. I.E. 'tests' for the testing preset
         type: string
-        default: ''
 
       build_preset:
         description: The preset sub-type used for the build. I.E. 'static' for the static library preset
         type: string
-        default: ''
 
       unit_test:
         description: Enable unit testing
@@ -42,7 +46,6 @@ on:
       unit_test_preset:
         description: The preset sub-type used for the unit test. I.E. 'unit-tests' for the unit tests preset
         type: string
-        default: ''
 
       integration_test:
         description: Enable integration testing
@@ -52,17 +55,19 @@ on:
       integration_test_preset:
         description: The preset sub-type used for the integration test. I.E. 'integration-tests' for the integration tests preset
         type: string
-        default: ''
+
+      check_auto:
+        description: Enable checks for the use of the auto keyword
+        type: boolean
+        default: false
 
       package_preset:
         description: The preset sub-type used for the packaging. I.E. 'static' for the static package preset
         type: string
-        default: ''
 
       package_path:
         description: Path to the directory containing the package files
         type: string
-        default: ''
 
       artifact_match_pattern:
         description: Pattern to match for artifacts to upload
@@ -75,6 +80,10 @@ jobs:
     uses: ./.github/workflows/msvc-base.yml
     with:
       job_name: "${{ inputs.job_name }}"
+
+      app_id: ${{ inputs.app_id }}
+
+      app_private_key: ${{ inputs.app_private_key }}
 
       year: "2022"
 
@@ -97,6 +106,8 @@ jobs:
       integration_test: ${{ inputs.integration_test }}
 
       integration_test_preset: "${{ inputs.integration_test_preset }}"
+
+      check_auto: "${{ inputs.check_auto }}"
 
       package_preset: "${{ inputs.package_preset }}"
 
