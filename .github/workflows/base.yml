@@ -313,13 +313,13 @@ jobs:
         with:
           preset_name: "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}"
 
-      - name: "Disable auto Keyword (Debug)"
+      - name: "Poison auto Keyword (Debug)"
         if: >-
           ${{
             inputs.debug &&
             inputs.check_auto
           }}
-        uses: HBK-MicroStrain-Internal/actions/no-auto-check@main
+        uses: HBK-MicroStrain-Internal/actions/poison-auto@main
         with:
           configure_preset: "${{ steps.handle_inputs.outputs.debug_configure_preset_name }}"
 
@@ -409,13 +409,13 @@ jobs:
         with:
           preset_name: "${{ steps.handle_inputs.outputs.release_configure_preset_name }}"
 
-      - name: "Disable auto Keyword (Release)"
+      - name: "Poison auto Keyword (Release)"
         if: >-
           ${{
             inputs.release &&
             inputs.check_auto
           }}
-        uses: HBK-MicroStrain-Internal/actions/no-auto-check@main
+        uses: HBK-MicroStrain-Internal/actions/poison-auto@main
         with:
           configure_preset: "${{ steps.handle_inputs.outputs.release_configure_preset_name }}"
 
