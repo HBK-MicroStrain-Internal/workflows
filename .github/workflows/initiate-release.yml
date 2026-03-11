@@ -99,10 +99,10 @@ jobs:
         run: |
           # Update the version in the root CMakeLists.txt
           new_version="${{ steps.verify-version.outputs.release_version }}"
-          
+
           # Remove the prepended v
           new_version="${new_version#v}"
-          
+
           # Update the CMakeLists.txt
           sed -i "/project(/,/)/s/\(VERSION[[:space:]]\+\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1${new_version}/" CMakeLists.txt
 
@@ -115,20 +115,22 @@ jobs:
             echo "❌ ERROR: Version update failed! Got: ${updated}"
             exit 1
           fi
-          
+
           echo "Version successfully updated to ${updated}"
 
       - name: 'Commit and Push Release Branch'
         shell: bash
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           # Configure the Action Bot as the git user
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
+
           # Commit the updated CMake project version change
           git add CMakeLists.txt
           git commit -m "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
-          
+
           # Push the new release branch
           git push origin release/${{ steps.verify-version.outputs.release_version }}
 
@@ -148,3 +150,17 @@ jobs:
             --head release/${{ steps.verify-version.outputs.release_version }} \
             --title "Release ${{ steps.verify-version.outputs.release_version }}" \
             --body "${{ steps.extract-notes.outputs.release_notes }}"
+
+      - name: 'Cleanup Release Branch on Failure'
+        if: failure()
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          remote_branch="release/${{ steps.verify-version.outputs.release_version }}"
+
+          # Check if the new branch was created and pushed
+          if git ls-remote --exit-code origin ${remote_branch} > /dev/null 2>&1; then
+            # Delete the remote branch since the workflow failed
+            git push origin --delete ${remote_branch}
+            echo "Cleaned up ${remote_branch} branch"
+          fi
