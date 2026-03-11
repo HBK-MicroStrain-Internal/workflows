@@ -1,0 +1,108 @@
+name: 'Create a Release Branch and PR'
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version of the release'
+        type: string
+        required: true
+
+    secrets:
+      app_id:
+        description: GitHub App ID for releases
+        required: true
+
+      app_private_key:
+        description: GitHub App private key for releases
+        required: true
+
+jobs:
+  workflow:
+    name: 'Create GitHub Release'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout'
+        uses: HBK-MicroStrain-Internal/actions/checkout@main
+        with:
+          ref: develop
+
+      - name: "Get Previous Release Version"
+        id: previous-version
+        shell: bash
+        run: |
+          # Get the previous semantic release from GitHub
+          # Excludes drafts (by default) and pre-releases
+          previous_release=$(gh release list --limit 1 --exclude-pre-releases --json tagName --jq '.[0].tagName')
+          
+          # Default to 0.0.0 for no existing releases
+          previous_release=${previous_release:-0.0.0}
+
+          echo "previous_release=$previous_release" >> $GITHUB_OUTPUT
+
+      - name: "Compare Versions"
+        if: >-
+          ${{
+            steps.project-version.outcome == 'success'
+          }}
+        id: compare-version
+        uses: HBK-MicroStrain-Internal/actions/version-compare@main
+        with:
+          version_lhs: "${{ inputs.version }}"
+          version_rhs: "${{ steps.previous-version.outputs.previous_release }}"
+          greater: true
+
+      - name: 'Display Version Error'
+        if: >-
+          ${{
+            steps.compare-version.outcome == 'failure'
+          }}
+        shell: bash
+        run: |
+          echo "❌ ERROR: Cannot create release. Input version ${{ inputs.version }} has not been incremented from the previous release ${{ steps.previous-version.outputs.previous_release }}"
+          exit 1
+
+      - name: 'Extract Release Notes'
+        id: extract-notes
+        uses: ffurrer2/extract-release-notes@v2
+        with:
+          changelog_file: CHANGELOG.md
+
+      - name: 'Update CMake project version'
+        shell: bash
+        run: |
+          # Update the version in the root CMakeLists.txt
+          new_version="${{ inputs.version }}"
+          sed -i "/project(/,/)/s/\(VERSION[[:space:]]\+\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1${new_version}/" CMakeLists.txt
+
+          # Verify
+          updated=$(sed -n '/project(/,/)/p' CMakeLists.txt |
+            grep -oEi 'VERSION[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+' |
+            grep -oEi '[0-9]+\.[0-9]+\.[0-9]+')
+          
+          if [ "${updated}" != "${new_version}" ]; then
+            echo "❌ ERROR: Version update failed! Got: ${updated}"
+            exit 1
+          fi
+          
+          echo "Version successfully updated to ${updated}"
+
+      - name: 'Generate GitHub App Token'
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.app_id }}
+          private-key: ${{ secrets.app_private_key }}
+
+      - name: 'Create Release Pull Request'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          branch: release/v${{ inputs.version }}
+          base: main
+          commit-message: "Bump version to v${{ inputs.version }} for release"
+          title: "Release v${{ inputs.version }}"
+          body: ${{ steps.extract-notes.outputs.release_notes }}
+          labels: release
+          draft: false
