@@ -136,22 +136,23 @@ jobs:
 
       - name: 'Extract Release Notes'
         id: extract-notes
-        uses: ffurrer2/extract-release-notes@v2
+        uses: mindsers/changelog-reader-action@v2
         with:
-          changelog_file: CHANGELOG.md
+          path: CHANGELOG.md
+          version: Unreleased
 
       - name: 'Create Release Pull Request'
         shell: bash
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          echo "Release note: ${{ steps.extract-notes.outputs.release_notes }}"
+          echo "Release note: ${{ steps.extract-notes.outputs.changes }}"
 
           gh pr create \
             --base main \
             --head release/${{ steps.verify-version.outputs.release_version }} \
             --title "Release ${{ steps.verify-version.outputs.release_version }}" \
-            --body "${{ steps.extract-notes.outputs.release_notes }}"
+            --body "${{ steps.extract-notes.outputs.changes }}"
 
       - name: 'Cleanup Release Branch on Failure'
         if: failure()
