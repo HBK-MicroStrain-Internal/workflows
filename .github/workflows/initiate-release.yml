@@ -28,6 +28,22 @@ jobs:
         with:
           ref: develop
 
+      - name: "Verify Release Version"
+        id: verify-version
+        shell: bash
+        run: |
+          release_version="${{ inputs.version }}"
+
+          if [[ ! "${release_version}" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "❌ Invalid version format: '${release_version}'. Expected format: 1.2.3 or 1.2.3.4 (optional leading v)"
+            exit 1
+          fi
+
+          # Make sure the version is prepended with a v
+          [[ "${release_version}" != v* ]] && release_version="v${release_version}"
+
+          echo "release_version=${release_version}" >> $GITHUB_OUTPUT
+
       - name: "Get Previous Release Version"
         id: previous-version
         shell: bash
@@ -35,7 +51,7 @@ jobs:
           # Get the previous semantic release from GitHub
           # Excludes drafts (by default) and pre-releases
           previous_release=$(gh release list --limit 1 --exclude-pre-releases --json tagName --jq '.[0].tagName')
-          
+
           # Default to 0.0.0 for no existing releases
           previous_release=${previous_release:-0.0.0}
 
@@ -49,7 +65,7 @@ jobs:
         id: compare-version
         uses: HBK-MicroStrain-Internal/actions/version-compare@main
         with:
-          version_lhs: "${{ inputs.version }}"
+          version_lhs: "${{ steps.verify-version.outputs.release_version }}"
           version_rhs: "${{ steps.previous-version.outputs.previous_release }}"
           greater: true
 
@@ -60,33 +76,38 @@ jobs:
           }}
         shell: bash
         run: |
-          echo "❌ ERROR: Cannot create release. Input version ${{ inputs.version }} has not been incremented from the previous release ${{ steps.previous-version.outputs.previous_release }}"
+          echo "❌ ERROR: Cannot create release. Input version ${{ steps.verify-version.outputs.release_version }} has not been incremented from the previous release ${{ steps.previous-version.outputs.previous_release }}"
           exit 1
+
+      - name: 'Update CMake project version'
+        shell: bash
+        run: |
+          # Update the version in the root CMakeLists.txt
+          new_version="${{ steps.verify-version.outputs.release_version }}"
+          
+          # Remove the prepended v
+          new_version="${new_version#v}"
+          
+          # Update the CMakeLists.txt
+          sed -i "/project(/,/)/s/\(VERSION[[:space:]]\+\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1${new_version}/" CMakeLists.txt
+
+          # Verify the version was updated
+          updated=$(sed -n '/project(/,/)/p' CMakeLists.txt |
+            grep -oEi 'VERSION[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+' |
+            grep -oEi '[0-9]+\.[0-9]+\.[0-9]+')
+
+          if [[ "${updated}" != "${new_version}" ]]; then
+            echo "❌ ERROR: Version update failed! Got: ${updated}"
+            exit 1
+          fi
+
+          echo "Version successfully updated to ${updated}"
 
       - name: 'Extract Release Notes'
         id: extract-notes
         uses: ffurrer2/extract-release-notes@v2
         with:
           changelog_file: CHANGELOG.md
-
-      - name: 'Update CMake project version'
-        shell: bash
-        run: |
-          # Update the version in the root CMakeLists.txt
-          new_version="${{ inputs.version }}"
-          sed -i "/project(/,/)/s/\(VERSION[[:space:]]\+\)[0-9]\+\.[0-9]\+\.[0-9]\+/\1${new_version}/" CMakeLists.txt
-
-          # Verify
-          updated=$(sed -n '/project(/,/)/p' CMakeLists.txt |
-            grep -oEi 'VERSION[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+' |
-            grep -oEi '[0-9]+\.[0-9]+\.[0-9]+')
-          
-          if [ "${updated}" != "${new_version}" ]; then
-            echo "❌ ERROR: Version update failed! Got: ${updated}"
-            exit 1
-          fi
-          
-          echo "Version successfully updated to ${updated}"
 
       - name: 'Generate GitHub App Token'
         id: app-token
@@ -99,10 +120,10 @@ jobs:
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ steps.app-token.outputs.token }}
-          branch: release/v${{ inputs.version }}
+          branch: release/${{ steps.verify-version.outputs.release_version }}
           base: main
-          commit-message: "Bump version to v${{ inputs.version }} for release"
-          title: "Release v${{ inputs.version }}"
+          commit-message: "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
+          title: "Release ${{ steps.verify-version.outputs.release_version }}"
           body: ${{ steps.extract-notes.outputs.release_notes }}
           labels: release
           draft: false
