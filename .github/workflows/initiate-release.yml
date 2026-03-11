@@ -145,6 +145,8 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
+          echo "Release note: ${{ steps.extract-notes.outputs.release_notes }}"
+
           gh pr create \
             --base main \
             --head release/${{ steps.verify-version.outputs.release_version }} \
