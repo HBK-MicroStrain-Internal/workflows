@@ -8,13 +8,14 @@ on:
         type: string
         required: true
 
-    secrets:
       app_id:
         description: GitHub App ID for releases
+        type: string
         required: true
 
       app_private_key:
         description: GitHub App private key for releases
+        type: string
         required: true
 
 jobs:
@@ -48,8 +49,8 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ secrets.app_id }}
-          private-key: ${{ secrets.app_private_key }}
+          app-id: ${{ inputs.app_id }}
+          private-key: ${{ inputs.app_private_key }}
 
       - name: "Get Previous Release Version"
         id: previous-version
