@@ -88,6 +88,12 @@ jobs:
           echo "❌ ERROR: Cannot create release. Input version ${{ steps.verify-version.outputs.release_version }} has not been incremented from the previous release ${{ steps.previous-version.outputs.previous_release }}"
           exit 1
 
+      - name: 'Create the release branch'
+        shell: bash
+        run: |
+          # Create the release branch
+          git checkout -b release/${{ steps.verify-version.outputs.release_version }}
+
       - name: 'Update CMake project version'
         shell: bash
         run: |
@@ -109,8 +115,22 @@ jobs:
             echo "❌ ERROR: Version update failed! Got: ${updated}"
             exit 1
           fi
-
+          
           echo "Version successfully updated to ${updated}"
+
+      - name: 'Commit and Push Release Branch'
+        shell: bash
+        run: |
+          # Configure the Action Bot as the git user
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Commit the updated CMake project version change
+          git add CMakeLists.txt
+          git commit -m "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
+          
+          # Push the new release branch
+          git push origin release/${{ steps.verify-version.outputs.release_version }}
 
       - name: 'Extract Release Notes'
         id: extract-notes
@@ -119,13 +139,13 @@ jobs:
           changelog_file: CHANGELOG.md
 
       - name: 'Create Release Pull Request'
-        uses: peter-evans/create-pull-request@v8
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          branch: release/${{ steps.verify-version.outputs.release_version }}
-          base: main
-          commit-message: "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
-          title: "Release ${{ steps.verify-version.outputs.release_version }}"
-          body: ${{ steps.extract-notes.outputs.release_notes }}
-          labels: release
-          draft: false
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head release/${{ steps.verify-version.outputs.release_version }} \
+            --title "Release ${{ steps.verify-version.outputs.release_version }}" \
+            --body "${{ steps.extract-notes.outputs.release_notes }}" \
+            --label release
