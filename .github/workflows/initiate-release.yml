@@ -147,5 +147,4 @@ jobs:
             --base main \
             --head release/${{ steps.verify-version.outputs.release_version }} \
             --title "Release ${{ steps.verify-version.outputs.release_version }}" \
-            --body "${{ steps.extract-notes.outputs.release_notes }}" \
-            --label release
+            --body "${{ steps.extract-notes.outputs.release_notes }}"
