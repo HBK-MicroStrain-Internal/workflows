@@ -44,8 +44,17 @@ jobs:
 
           echo "release_version=${release_version}" >> $GITHUB_OUTPUT
 
+      - name: 'Generate GitHub App Token'
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.app_id }}
+          private-key: ${{ secrets.app_private_key }}
+
       - name: "Get Previous Release Version"
         id: previous-version
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         shell: bash
         run: |
           # Get the previous semantic release from GitHub
@@ -108,13 +117,6 @@ jobs:
         uses: ffurrer2/extract-release-notes@v2
         with:
           changelog_file: CHANGELOG.md
-
-      - name: 'Generate GitHub App Token'
-        id: app-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.app_id }}
-          private-key: ${{ secrets.app_private_key }}
 
       - name: 'Create Release Pull Request'
         uses: peter-evans/create-pull-request@v8
