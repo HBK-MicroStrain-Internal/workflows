@@ -126,6 +126,7 @@ jobs:
           paths: |
             CMakeLists.txt
           push: true
+          branch: release/${{ steps.verify-version.outputs.release_version }}
 
       - name: 'Extract Release Notes'
         id: extract-notes
