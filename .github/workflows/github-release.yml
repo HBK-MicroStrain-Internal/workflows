@@ -36,16 +36,16 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
           path: ./release-artifacts
 
+      - name: 'Extract Release Version'
+        id: project-version
+        uses: HBK-MicroStrain-Internal/actions/cmake-project-version@main
+
       - name: 'Extract Release Notes'
         id: extract-notes
         uses: mindsers/changelog-reader-action@v2
         with:
           path: CHANGELOG.md
           version: v${{ steps.project-version.outputs.version }}
-
-      - name: 'Extract Release Version'
-        id: project-version
-        uses: HBK-MicroStrain-Internal/actions/cmake-project-version@main
 
       - name: 'Create GitHub Release'
         uses: softprops/action-gh-release@v2
