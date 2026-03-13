@@ -94,7 +94,7 @@ jobs:
           # Create the release branch
           git checkout -b release/${{ steps.verify-version.outputs.release_version }}
 
-      - name: 'Update CMake project version'
+      - name: 'Update CMake Project Version'
         shell: bash
         run: |
           # Update the version in the root CMakeLists.txt
@@ -118,14 +118,19 @@ jobs:
 
           echo "Version successfully updated to ${updated}"
 
-      - name: 'Commit and Push Release Branch'
+      - name: 'Commit CMake Project Version Change'
         uses: iarekylew00t/verified-bot-commit@v2
         with:
           token: ${{ steps.app-token.outputs.token }}
-          ref: release/${{ steps.verify-version.outputs.release_version }}
           message: "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
           files: |
             CMakeLists.txt
+
+      - name: 'Push Release Branch'
+        uses: ad-m/github-push-action@v1.0.0
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          branch: release/${{ steps.verify-version.outputs.release_version }}
 
       - name: 'Extract Release Notes'
         id: extract-notes
