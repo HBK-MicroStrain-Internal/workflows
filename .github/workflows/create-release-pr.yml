@@ -19,7 +19,7 @@ on:
 
 jobs:
   workflow:
-    name: 'Create GitHub Release'
+    name: 'Create a Release Branch and PR'
     runs-on: ubuntu-latest
 
     steps:
