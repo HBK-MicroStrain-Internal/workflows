@@ -64,17 +64,9 @@ jobs:
           ${{
             steps.checkbox-state.outputs.is_checked == 'true'
           }}
-        shell: bash
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          # Configure the Action Bot as the git user
-          git config user.name "${{ vars.ACTIONS_BOT_USER_GITHUB }}"
-          git config user.email "${{ vars.ACTIONS_BOT_EMAIL_GITHUB }}"
-
-          # Commit the updated CMake project version change
-          git add CHANGELOG.md
-          git commit -m "Update changelog for release v${{ steps.release-version.outputs.version }}"
-
-          # Push the updates to the release branch
-          git push
+        uses: iarekylew00t/verified-bot-commit@v2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          message: "Update changelog for release v${{ steps.release-version.outputs.version }}"
+          files: |
+            CHANGELOG.md

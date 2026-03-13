@@ -119,20 +119,13 @@ jobs:
           echo "Version successfully updated to ${updated}"
 
       - name: 'Commit and Push Release Branch'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          # Configure the Action Bot as the git user
-          git config user.name "${{ vars.ACTIONS_BOT_USER_GITHUB }}"
-          git config user.email "${{ vars.ACTIONS_BOT_EMAIL_GITHUB }}"
-
-          # Commit the updated CMake project version change
-          git add CMakeLists.txt
-          git commit -m "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
-
-          # Push the new release branch
-          git push origin release/${{ steps.verify-version.outputs.release_version }}
+        uses: iarekylew00t/verified-bot-commit@v2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: release/${{ steps.verify-version.outputs.release_version }}
+          message: "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
+          files: |
+            CMakeLists.txt
 
       - name: 'Extract Release Notes'
         id: extract-notes
