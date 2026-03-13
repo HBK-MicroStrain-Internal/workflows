@@ -118,19 +118,14 @@ jobs:
 
           echo "Version successfully updated to ${updated}"
 
-      - name: 'Commit CMake Project Version Change'
-        uses: iarekylew00t/verified-bot-commit@v2
+      - name: 'Commit And Push CMake Project Version Change'
+        uses: statens-pensjonskasse/gha-create-signed-commit@v0.1.2
         with:
           token: ${{ steps.app-token.outputs.token }}
           message: "Bump version to ${{ steps.verify-version.outputs.release_version }} for release"
-          files: |
+          paths: |
             CMakeLists.txt
-
-      - name: 'Push Release Branch'
-        uses: ad-m/github-push-action@v1.0.0
-        with:
-          github_token: ${{ steps.app-token.outputs.token }}
-          branch: release/${{ steps.verify-version.outputs.release_version }}
+          push: true
 
       - name: 'Extract Release Notes'
         id: extract-notes
