@@ -71,6 +71,7 @@ jobs:
           paths: |
             CHANGELOG.md
           push: true
+          branch: ${{ github.event.pull_request.head.ref }}
 
       - name: 'Remove Changelog Checkbox From PR Body'
         if: >-
