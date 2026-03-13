@@ -25,7 +25,7 @@ jobs:
       - name: 'Checkout'
         if: >-
           ${{
-            steps.checkbox-state.outputs.is_checked == 'true'
+            steps.checkbox-state.outputs.checked == 'true'
           }}
         uses: HBK-MicroStrain-Internal/actions/checkout@main
         with:
@@ -35,14 +35,14 @@ jobs:
         id: release-version
         if: >-
           ${{
-            steps.checkbox-state.outputs.is_checked == 'true'
+            steps.checkbox-state.outputs.checked == 'true'
           }}
         uses: HBK-MicroStrain-Internal/actions/cmake-project-version@main
 
       - name: 'Update Changelog Date'
         if: >-
           ${{
-            steps.checkbox-state.outputs.is_checked == 'true'
+            steps.checkbox-state.outputs.checked == 'true'
           }}
         uses: thomaseizinger/keep-a-changelog-new-release@3.1.0
         with:
@@ -52,7 +52,7 @@ jobs:
         id: app-token
         if: >-
           ${{
-            steps.checkbox-state.outputs.is_checked == 'true'
+            steps.checkbox-state.outputs.checked == 'true'
           }}
         uses: actions/create-github-app-token@v1
         with:
@@ -62,7 +62,7 @@ jobs:
       - name: 'Commit And Push Changelog Update'
         if: >-
           ${{
-            steps.checkbox-state.outputs.is_checked == 'true'
+            steps.checkbox-state.outputs.checked == 'true'
           }}
         uses: statens-pensjonskasse/gha-create-signed-commit@v0.1.2
         with:
@@ -71,4 +71,18 @@ jobs:
           paths: |
             CHANGELOG.md
           push: true
-          fail-on-no-changes: false
+
+      - name: 'Remove Changelog Checkbox From PR Body'
+        if: >-
+          ${{
+            steps.checkbox-state.outputs.checked == 'true'
+          }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        shell: bash
+        run: |
+          UPDATED_BODY=$(echo "${PR_BODY}" | sed '/^- \[x\] ${{ vars.RELEASE_CHANGELOG_CHECKBOX_MESSAGE }}$/d')
+          gh api repos/$GITHUB_REPOSITORY/pulls/${{ github.event.pull_request.number }} \
+            --method PATCH \
+            -f body="${UPDATED_BODY}"
