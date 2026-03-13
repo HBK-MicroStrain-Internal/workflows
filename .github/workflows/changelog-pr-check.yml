@@ -121,12 +121,10 @@ jobs:
           }}
         uses: HBK-MicroStrain-Internal/actions/pull-request-validation-comment@main
         with:
-          token: ${{ steps.app-token.outputs.token }}
           check_name: ${{ env.CHECK_FAIL_HEADER }}
           # This method preserves the newlines properly in the message
           failure_message: >
             ${{ env.UPDATE_CHANGELOG_MESSAGE }} before merging.
 
             ${{ env.BYPASS_OPTION_MESSAGE }} for this PR.
-          pr_id: ${{ steps.pr-status.outputs.pr_id }}
           check_status: ${{ steps.print-status.outcome }}
